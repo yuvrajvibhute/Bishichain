@@ -1,0 +1,350 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Bhishi.eth — Neo-Desi Design Tokens & Theme System
+   ──────────────────────────────────────────────────────────────────────────── */
+
+:root,
+html[data-theme="light"] {
+  --bg-primary: #FAF7F0;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #F2ECE0;
+  --bg-card: #FFFFFF;
+  
+  --text-primary: #111827;     /* Pure deep black/slate for 100% crisp contrast */
+  --text-secondary: #374151;   /* High-contrast secondary text */
+  --text-muted: #6B7280;
+  
+  --border-color: #111827;     /* NeoPop bold border */
+  --border-muted: #E5E7EB;
+
+  --color-turmeric: #F59E0B;
+  --color-marigold: #EA580C;
+  --color-sindoor: #DC2626;
+  --color-tulsi: #059669;
+  --color-charcoal: #111827;
+  --color-paper: #FAF7F0;
+  --color-ink: #111827;
+
+  --shadow-sm: 2px 2px 0 #111827;
+  --shadow-md: 4px 4px 0 #111827;
+  --shadow-lg: 6px 6px 0 #111827;
+  --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+html[data-theme="dark"],
+html.dark {
+  --bg-primary: #0A0D14;      /* Deep obsidian void */
+  --bg-surface: #131826;      /* Polished midnight slate */
+  --bg-surface-hover: #1C2337;
+  --bg-card: #131826;
+  
+  --text-primary: #FFFFFF;     /* 100% pure white, crisp readability */
+  --text-secondary: #E2E8F0;   /* High-contrast silver */
+  --text-muted: #94A3B8;
+  
+  --border-color: #2D3748;     /* Crisp slate border */
+  --border-muted: #1E293B;
+
+  --color-turmeric: #FBBF24;
+  --color-marigold: #FB923C;
+  --color-sindoor: #F87171;
+  --color-tulsi: #34D399;
+  --color-charcoal: #0A0D14;
+  --color-paper: #131826;
+  --color-ink: #FFFFFF;
+
+  --shadow-sm: 2px 2px 0 #000000;
+  --shadow-md: 4px 4px 0 #000000;
+  --shadow-lg: 6px 6px 0 #000000;
+  --shadow-glow: 0 0 25px rgba(251, 191, 36, 0.25);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Base Styles
+   ──────────────────────────────────────────────────────────────────────────── */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-ui), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  padding-bottom: 4rem; /* Safe padding for mobile bottom bar */
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Utility Bindings
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.bg-primary         { background-color: var(--bg-primary); }
+.bg-surface         { background-color: var(--bg-surface); }
+.bg-surface-hover   { background-color: var(--bg-surface-hover); }
+.text-text-primary  { color: var(--text-primary) !important; }
+.text-text-secondary{ color: var(--text-secondary) !important; }
+.text-text-muted    { color: var(--text-muted) !important; }
+.border-border      { border-color: var(--border-color); }
+
+.text-turmeric      { color: var(--color-turmeric); }
+.text-sindoor       { color: var(--color-sindoor); }
+.text-tulsi         { color: var(--color-tulsi); }
+.text-marigold      { color: var(--color-marigold); }
+
+.bg-turmeric        { background-color: var(--color-turmeric); }
+.bg-sindoor         { background-color: var(--color-sindoor); }
+.bg-tulsi           { background-color: var(--color-tulsi); }
+.bg-marigold        { background-color: var(--color-marigold); }
+
+.shadow-hard-sm     { box-shadow: var(--shadow-sm); }
+.shadow-hard-md     { box-shadow: var(--shadow-md); }
+.shadow-hard-lg     { box-shadow: var(--shadow-lg); }
+.shadow-glow-gold   { box-shadow: var(--shadow-glow); }
+
+/* Typography */
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   NeoPop Buttons
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 80ms ease, box-shadow 80ms ease, background-color 0.2s ease;
+  position: relative;
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  background: var(--color-turmeric);
+  color: #111827 !important; /* Always crisp dark text on yellow */
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-1px, -1px);
+}
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-md);
+}
+.btn-secondary:hover {
+  background: var(--bg-surface-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-1px, -1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color);
+}
+.btn-outline:hover {
+  background: var(--bg-surface-hover);
+}
+
+.btn-lg {
+  padding: 0.85rem 1.75rem;
+  font-size: 1rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Card & Stamp System
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  position: relative;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stamp {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Mobile App Frame Simulator
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.mobile-frame-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #1E2433 0%, #080B11 100%);
+}
+
+.mobile-phone-frame {
+  width: 100%;
+  max-width: 412px;
+  height: 870px;
+  background: var(--bg-primary);
+  border: 12px solid #1E2330;
+  border-radius: 46px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 2px #323A4E;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-phone-notch {
+  width: 120px;
+  height: 22px;
+  background: #1E2330;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.notch-speaker {
+  width: 40px;
+  height: 4px;
+  background: #333C4D;
+  border-radius: 2px;
+}
+
+.notch-camera {
+  width: 8px;
+  height: 8px;
+  background: #121622;
+  border-radius: 50%;
+  border: 1px solid #2B3444;
+}
+
+.mobile-phone-screen {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Toast System
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.toast-container {
+  position: fixed;
+  bottom: 5rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .toast-container {
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+}
+
+.toast {
+  padding: 0.875rem 1.25rem;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+  font-size: 0.875rem;
+  max-width: 380px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Bottom Sheet
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 900;
+  backdrop-filter: blur(4px);
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 901;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-top: 3px solid var(--border-color);
+  border-radius: 16px 16px 0 0;
+  padding: 1.75rem;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.4);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Animations & Flourishes
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.04); }
+}
+
+.glow-animation {
+  animation: pulseGlow 4s infinite ease-in-out;
+}
