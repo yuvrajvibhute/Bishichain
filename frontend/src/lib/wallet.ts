@@ -1,6 +1,6 @@
 'use client';
 
-import { SEPOLIA_CHAIN_ID } from './wagmi';
+import { MST_TESTNET_CHAIN_ID, MST_TESTNET_RPC } from './wagmi';
 
 export interface CustomCircleData {
   address: `0x${string}`;
@@ -75,54 +75,86 @@ export function setCircleLocalState(address: string, state: any) {
 }
 
 /**
- * Direct 1-Click Sepolia Connection via MetaMask with Wagmi synchronization.
+ * Detects the injected BridgeKey provider exclusively (MetaMask is blocked so funds/rewards go to BridgeKey).
  */
-export async function connectDirectSepolia(connectors?: readonly any[] | any[], connectAsync?: any): Promise<string | null> {
-  if (typeof window === 'undefined' || !(window as any).ethereum) {
-    alert('Please install MetaMask first.');
+export function getBridgeKeyProvider(): any {
+  if (typeof window === 'undefined') return null;
+  const w = window as any;
+
+  // 1. Primary namespace for BridgeKey
+  if (w.bridgekey) return w.bridgekey;
+
+  // 2. If multiple providers are injected in window.ethereum.providers, choose BridgeKey or non-MetaMask
+  if (w.ethereum?.providers?.length) {
+    const bk = w.ethereum.providers.find((p: any) => p.isBridgeKey || p.isBridgekey || !p.isMetaMask);
+    if (bk) return bk;
+  }
+
+  // 3. If window.ethereum is flagged as BridgeKey
+  if (w.ethereum?.isBridgeKey || w.ethereum?.isBridgekey) {
+    return w.ethereum;
+  }
+
+  // 4. If window.ethereum is present and NOT MetaMask
+  if (w.ethereum && !w.ethereum.isMetaMask) {
+    return w.ethereum;
+  }
+
+  // If BridgeKey is the only extension or window.bridgekey exists
+  return w.bridgekey || (w.ethereum && !w.ethereum.isMetaMask ? w.ethereum : null);
+}
+
+/**
+ * Direct 1-Click MST Testnet Connection via BridgeKey with Wagmi synchronization.
+ */
+export async function connectDirectMst(connectors?: readonly any[] | any[], connectAsync?: any): Promise<string | null> {
+  const provider = getBridgeKeyProvider();
+  if (!provider) {
+    alert('Please install or unlock BridgeKey Wallet extension. MetaMask has been disabled to ensure all MST transactions route to BridgeKey.');
     return null;
   }
 
   try {
-    const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await provider.request({ method: 'eth_requestAccounts' });
     if (!accounts || accounts.length === 0) return null;
 
-    // Switch or add Sepolia (0xaa36a7 = 11155111)
+    const hexChainId = '0x' + MST_TESTNET_CHAIN_ID.toString(16);
+
+    // Switch or add MST Testnet
     try {
-      await (window as any).ethereum.request({
+      await provider.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0xaa36a7' }],
+        params: [{ chainId: hexChainId }],
       });
     } catch (switchError: any) {
-      if (switchError.code === 4902) {
-        await (window as any).ethereum.request({
+      if (switchError.code === 4902 || switchError?.data?.originalError?.code === 4902) {
+        await provider.request({
           method: 'wallet_addEthereumChain',
           params: [
             {
-              chainId: '0xaa36a7',
-              chainName: 'Ethereum Sepolia',
-              nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
-              rpcUrls: ['https://ethereum-sepolia-rpc.publicnode.com'],
-              blockExplorerUrls: ['https://sepolia.etherscan.io'],
+              chainId: hexChainId,
+              chainName: 'MST Testnet',
+              nativeCurrency: { name: 'tMSTC', symbol: 'tMSTC', decimals: 18 },
+              rpcUrls: [MST_TESTNET_RPC],
+              blockExplorerUrls: ['https://testnet.mstscan.com'],
             },
           ],
         });
       }
     }
 
-    // Synchronize Wagmi connector if hooks provided
+    // Synchronize Wagmi connector (filtering out MetaMask to prioritize BridgeKey)
     if (connectors && connectAsync) {
       const injected =
         connectors.find(
           (c) =>
-            c.id === 'injected' ||
-            c.id === 'metaMask' ||
-            c.id === 'io.metamask' ||
-            c.name.toLowerCase().includes('metamask')
-        ) || connectors[0];
+            c.id === 'bridgekey' ||
+            c.name.toLowerCase().includes('bridgekey') ||
+            (c.id === 'injected' && !c.name.toLowerCase().includes('metamask'))
+        ) || connectors.find((c) => c.id === 'injected') || connectors[0];
       if (injected) {
         try {
-          await connectAsync({ connector: injected, chainId: SEPOLIA_CHAIN_ID });
+          await connectAsync({ connector: injected, chainId: MST_TESTNET_CHAIN_ID });
         } catch (wagmiErr) {
           // Wagmi may complain if already connected or pending; accounts[0] is still valid
           console.warn('Wagmi connector sync notice:', wagmiErr);
@@ -136,3 +168,6 @@ export async function connectDirectSepolia(connectors?: readonly any[] | any[], 
     return null;
   }
 }
+
+// Backwards-compatible alias
+export const connectDirectSepolia = connectDirectMst;

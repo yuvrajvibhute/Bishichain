@@ -131,7 +131,7 @@ export function useTxWithToast() {
       toasts.update(toastIdRef.current!, {
         type: 'pending',
         title: `${label} submitted`,
-        message: 'Mining on Sepolia…',
+        message: 'Mining on MST Testnet…',
         txHash: hash,
       });
 

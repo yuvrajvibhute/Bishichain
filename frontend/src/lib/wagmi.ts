@@ -1,21 +1,46 @@
 'use client';
 
+import { defineChain } from 'viem';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { sepolia } from 'wagmi/chains';
+import { injectedWallet } from '@rainbow-me/rainbowkit/wallets';
 import { http } from 'viem';
 
-export const SEPOLIA_CHAIN_ID = 11155111;
+export const MST_TESTNET_CHAIN_ID = 91562037;
+export const MST_TESTNET_RPC = 'https://testnetrpc.mstblockchain.com';
 
-// Public reliable Sepolia RPCs
-export const SEPOLIA_RPC = 'https://ethereum-sepolia-rpc.publicnode.com';
+// Alias for backwards-compatibility
+export const SEPOLIA_CHAIN_ID = MST_TESTNET_CHAIN_ID;
+export const SEPOLIA_RPC = MST_TESTNET_RPC;
+
+export const mstTestnet = defineChain({
+  id: MST_TESTNET_CHAIN_ID,
+  name: 'MST Testnet',
+  nativeCurrency: {
+    name: 'tMSTC',
+    symbol: 'tMSTC',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: [MST_TESTNET_RPC] },
+  },
+  blockExplorers: {
+    default: { name: 'MSTScan', url: 'https://testnet.mstscan.com' },
+  },
+  testnet: true,
+});
 
 export const config = getDefaultConfig({
-  appName: 'Bhishi.eth',
-  // Valid demo project id to prevent WalletConnect cloud initialization hanging
+  appName: 'Bhishi - MST',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'b56e18d47c72ab683b10814fe9495694',
-  chains: [sepolia],
+  chains: [mstTestnet],
+  wallets: [
+    {
+      groupName: 'Native MST Wallet',
+      wallets: [injectedWallet],
+    },
+  ],
   transports: {
-    [sepolia.id]: http(SEPOLIA_RPC),
+    [mstTestnet.id]: http(MST_TESTNET_RPC),
   },
   ssr: true,
 });

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount, useConnect, useDisconnect, useSwitchChain, useChainId } from 'wagmi';
-import { SEPOLIA_CHAIN_ID } from '@/lib/wagmi';
+import { MST_TESTNET_CHAIN_ID, MST_TESTNET_RPC } from '@/lib/wagmi';
 import { shortAddr, etherscanAddr } from '@/lib/utils';
+import { getBridgeKeyProvider } from '@/lib/wallet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toasts } from './ToastContainer';
 
-export function DirectSepoliaConnect() {
+export function DirectBridgeKeyConnect() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const { connectors, connectAsync, isPending } = useConnect();
@@ -24,17 +25,24 @@ export function DirectSepoliaConnect() {
     }
   }, [address]);
 
-  // Auto-connect on mount if MetaMask already authorized
+  // Auto-connect on mount if BridgeKey already authorized
   useEffect(() => {
     async function autoConnect() {
-      if (typeof window !== 'undefined' && (window as any).ethereum) {
+      const provider = getBridgeKeyProvider();
+      if (provider) {
         try {
-          const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
+          const accounts = await provider.request({ method: 'eth_accounts' });
           if (accounts && accounts.length > 0 && !isConnected) {
             setAccount(accounts[0]);
-            const injected = connectors.find((c) => c.id === 'injected' || c.name.toLowerCase().includes('metamask')) || connectors[0];
+            const injected =
+              connectors.find(
+                (c) =>
+                  c.id === 'bridgekey' ||
+                  c.name.toLowerCase().includes('bridgekey') ||
+                  (c.id === 'injected' && !c.name.toLowerCase().includes('metamask'))
+              ) || connectors.find((c) => c.id === 'injected') || connectors[0];
             if (injected) {
-              await connectAsync({ connector: injected, chainId: SEPOLIA_CHAIN_ID });
+              await connectAsync({ connector: injected, chainId: MST_TESTNET_CHAIN_ID });
             }
           }
         } catch (e) {
@@ -45,9 +53,10 @@ export function DirectSepoliaConnect() {
     autoConnect();
   }, [connectors, connectAsync, isConnected]);
 
-  // Listen to MetaMask accountsChanged and chainChanged directly
+  // Listen to accountsChanged and chainChanged directly from BridgeKey
   useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
+    const provider = getBridgeKeyProvider();
+    if (provider && provider.on) {
       const handleAccounts = (accounts: string[]) => {
         if (accounts.length > 0) {
           setAccount(accounts[0]);
@@ -56,9 +65,11 @@ export function DirectSepoliaConnect() {
           disconnect();
         }
       };
-      (window as any).ethereum.on('accountsChanged', handleAccounts);
+      provider.on('accountsChanged', handleAccounts);
       return () => {
-        (window as any).ethereum.removeListener('accountsChanged', handleAccounts);
+        if (provider.removeListener) {
+          provider.removeListener('accountsChanged', handleAccounts);
+        }
       };
     }
   }, [disconnect]);
@@ -74,39 +85,51 @@ export function DirectSepoliaConnect() {
     };
   }, [connectors, connectAsync]);
 
-  // Exact function requested by user
   async function connectWallet() {
-    if (typeof window === 'undefined' || !(window as any).ethereum) {
-      alert("Please install MetaMask first.");
+    const provider = getBridgeKeyProvider();
+    if (!provider) {
+      alert("Please install and unlock BridgeKey Wallet extension. MetaMask has been disabled to ensure all MST transactions and rewards route directly to BridgeKey.");
       return;
     }
     try {
-      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await provider.request({ method: "eth_requestAccounts" });
       setAccount(accounts[0]);
 
       // Connect wagmi connector to synchronize all contract hooks
-      const injected = connectors.find((c) => c.id === 'injected' || c.name.toLowerCase().includes('metamask')) || connectors[0];
+      const injected =
+        connectors.find(
+          (c) =>
+            c.id === 'bridgekey' ||
+            c.name.toLowerCase().includes('bridgekey') ||
+            (c.id === 'injected' && !c.name.toLowerCase().includes('metamask'))
+        ) || connectors.find((c) => c.id === 'injected') || connectors[0];
       if (injected) {
-        await connectAsync({ connector: injected, chainId: SEPOLIA_CHAIN_ID });
+        try {
+          await connectAsync({ connector: injected, chainId: MST_TESTNET_CHAIN_ID });
+        } catch (wagmiErr) {
+          console.warn('Wagmi sync notice:', wagmiErr);
+        }
       }
 
-      // Automatically ensure Sepolia chain
+      const hexChainId = '0x' + MST_TESTNET_CHAIN_ID.toString(16);
+
+      // Automatically ensure MST Testnet chain
       try {
-        await (window as any).ethereum.request({
+        await provider.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0xaa36a7' }],
+          params: [{ chainId: hexChainId }],
         });
       } catch (switchError: any) {
-        if (switchError.code === 4902) {
-          await (window as any).ethereum.request({
+        if (switchError.code === 4902 || switchError?.data?.originalError?.code === 4902) {
+          await provider.request({
             method: 'wallet_addEthereumChain',
             params: [
               {
-                chainId: '0xaa36a7',
-                chainName: 'Ethereum Sepolia',
-                nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
-                rpcUrls: ['https://ethereum-sepolia-rpc.publicnode.com'],
-                blockExplorerUrls: ['https://sepolia.etherscan.io'],
+                chainId: hexChainId,
+                chainName: 'MST Testnet',
+                nativeCurrency: { name: 'tMSTC', symbol: 'tMSTC', decimals: 18 },
+                rpcUrls: [MST_TESTNET_RPC],
+                blockExplorerUrls: ['https://testnet.mstscan.com'],
               },
             ],
           });
@@ -115,8 +138,8 @@ export function DirectSepoliaConnect() {
 
       toasts.add({
         type: 'success',
-        title: 'Wallet Connected',
-        message: `Connected to Sepolia as ${shortAddr(accounts[0])}`,
+        title: 'BridgeKey Connected',
+        message: `Connected to MST Testnet as ${shortAddr(accounts[0])}`,
       });
     } catch (e: any) {
       console.error('Connection error:', e);
@@ -130,7 +153,7 @@ export function DirectSepoliaConnect() {
 
   const activeAddress = address || account;
   const isWalletConnected = isConnected || !!account;
-  const isWrongNetwork = isWalletConnected && chainId !== undefined && chainId !== SEPOLIA_CHAIN_ID && chainId !== 0;
+  const isWrongNetwork = isWalletConnected && chainId !== undefined && chainId !== MST_TESTNET_CHAIN_ID && chainId !== 0;
 
   const handleCopy = () => {
     if (activeAddress) {
@@ -147,8 +170,8 @@ export function DirectSepoliaConnect() {
         disabled={isPending}
         className="btn btn-primary shadow-hard-sm text-xs py-2 px-3.5 flex items-center gap-1.5"
       >
-        <span>🦊</span>
-        <span>{isPending ? 'Connecting...' : 'Connect Sepolia'}</span>
+        <span>🔑</span>
+        <span>{isPending ? 'Connecting...' : 'Connect BridgeKey'}</span>
       </button>
     );
   }
@@ -156,11 +179,11 @@ export function DirectSepoliaConnect() {
   if (isWrongNetwork) {
     return (
       <button
-        onClick={() => switchChain({ chainId: SEPOLIA_CHAIN_ID })}
+        onClick={() => switchChain({ chainId: MST_TESTNET_CHAIN_ID })}
         className="btn btn-danger text-xs py-2 px-3 flex items-center gap-1.5 shadow-hard-sm animate-pulse"
       >
         <span>⚠️</span>
-        <span>Switch to Sepolia</span>
+        <span>Switch to MST Testnet</span>
       </button>
     );
   }
@@ -172,7 +195,7 @@ export function DirectSepoliaConnect() {
         className="px-3 py-1.5 bg-surface border-2 border-border rounded shadow-hard-sm text-xs font-mono font-bold flex items-center gap-2 hover:bg-surface-hover transition-all text-text-primary"
       >
         <span className="w-2 h-2 rounded-full bg-tulsi animate-pulse" />
-        <span className="hidden sm:inline text-text-muted">Sepolia:</span>
+        <span className="hidden sm:inline text-text-muted">BridgeKey:</span>
         <span>{shortAddr(activeAddress || '')}</span>
         <span className="text-[10px] opacity-60">▼</span>
       </button>
@@ -192,9 +215,9 @@ export function DirectSepoliaConnect() {
             >
               <div className="flex items-center justify-between pb-2 border-b border-border/20">
                 <span className="text-[10px] uppercase font-bold text-tulsi flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-tulsi" /> Connected to Sepolia
+                  <span className="w-1.5 h-1.5 rounded-full bg-tulsi" /> BridgeKey Connected
                 </span>
-                <span className="text-[10px] text-text-muted">ID: 11155111</span>
+                <span className="text-[10px] text-text-muted">ID: {MST_TESTNET_CHAIN_ID}</span>
               </div>
 
               <div>
@@ -239,3 +262,6 @@ export function DirectSepoliaConnect() {
     </div>
   );
 }
+
+// Backwards-compatible alias
+export const DirectSepoliaConnect = DirectBridgeKeyConnect;

@@ -8,7 +8,7 @@ import { circleFactoryAbi, CIRCLE_FACTORY_ADDRESS, getFactoryAddress } from '@/c
 import { toasts } from './ToastContainer';
 import { etherscanTx } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { saveCustomCircle } from '@/lib/wallet';
+import { saveCustomCircle, getBridgeKeyProvider } from '@/lib/wallet';
 
 interface Props {
   isOpen: boolean;
@@ -17,10 +17,10 @@ interface Props {
 }
 
 const PRESET_AMOUNTS = [
-  { label: '0.005 ETH', value: '0.005', desc: 'Chhoti Bachat (~$15)' },
-  { label: '0.01 ETH', value: '0.01', desc: 'Standard (~$30)' },
-  { label: '0.05 ETH', value: '0.05', desc: 'Badi Bachat (~$150)' },
-  { label: '0.1 ETH', value: '0.1', desc: 'High Pot (~$300)' },
+  { label: '0.005 tMSTC', value: '0.005', desc: 'Chhoti Bachat' },
+  { label: '0.01 tMSTC', value: '0.01', desc: 'Standard' },
+  { label: '0.05 tMSTC', value: '0.05', desc: 'Badi Bachat' },
+  { label: '0.1 tMSTC', value: '0.1', desc: 'High Pot' },
 ];
 
 const PRESET_MEMBERS = [3, 4, 5, 8, 10];
@@ -50,13 +50,13 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
         toasts.add({
           type: 'pending',
           title: 'Creating Circle...',
-          message: 'Deploying your Bhishi smart contract to Sepolia',
+          message: 'Deploying your Bhishi smart contract to MST Testnet',
           txHash: hash,
         });
       },
       onError: (err) => {
         const msg = err.message.includes('User rejected')
-          ? 'Transaction cancelled in MetaMask.'
+          ? 'Transaction cancelled in BridgeKey.'
           : (err as any).shortMessage || err.message;
         toasts.add({
           type: 'error',
@@ -95,12 +95,13 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
         return;
       }
 
-      // Trigger MetaMask confirmation transaction so it records on Sepolia in the user's wallet
+      // Trigger BridgeKey confirmation transaction so it records on MST Testnet in the user's wallet
       setIsSimulating(true);
       let txHash = '';
-      if (typeof window !== 'undefined' && (window as any).ethereum && userAddress) {
+      const provider = getBridgeKeyProvider();
+      if (provider && userAddress) {
         try {
-          txHash = await (window as any).ethereum.request({
+          txHash = await provider.request({
             method: 'eth_sendTransaction',
             params: [
               {
@@ -113,7 +114,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
         } catch (e: any) {
           if (e.message?.includes('User rejected')) {
             setIsSimulating(false);
-            toasts.add({ type: 'error', title: 'Cancelled', message: 'Deployment cancelled in MetaMask.' });
+            toasts.add({ type: 'error', title: 'Cancelled', message: 'Deployment cancelled in BridgeKey.' });
             return;
           }
         }
@@ -138,7 +139,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
       onClose();
       toasts.add({
         type: 'success',
-        title: 'Bhishi Circle Created on Sepolia! 🚀',
+        title: 'Bhishi Circle Created on MST Testnet! 🚀',
         message: `Your new circle is live at ${newAddress.slice(0, 8)}...`,
         txHash: txHash || undefined,
       });
@@ -383,7 +384,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
                   disabled={isPending || isWaiting || isSimulating}
                   className="btn btn-primary shadow-hard-md"
                 >
-                  {isSimulating ? 'Deploying to Sepolia...' : isPending ? 'Confirming in Wallet...' : isWaiting ? 'Mining Transaction...' : '🚀 Create Circle (Shuru Karein)'}
+                  {isSimulating ? 'Deploying to MST Testnet...' : isPending ? 'Confirming in Wallet...' : isWaiting ? 'Mining Transaction...' : '🚀 Create Circle (Shuru Karein)'}
                 </button>
               </div>
             </motion.div>

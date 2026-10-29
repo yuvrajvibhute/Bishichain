@@ -1,13 +1,13 @@
 'use client';
 
 import { useChainId } from 'wagmi';
-import { SEPOLIA_CHAIN_ID } from '@/lib/wagmi';
+import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
 import { motion } from 'framer-motion';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export function WrongNetwork() {
   const chainId = useChainId();
-  if (chainId === SEPOLIA_CHAIN_ID || chainId === 0) return null;
+  if (chainId === MST_TESTNET_CHAIN_ID || chainId === 0) return null;
 
   return (
     <motion.div
@@ -21,13 +21,13 @@ export function WrongNetwork() {
         <h2 className="font-display text-2xl font-bold mb-2">Galat Network!</h2>
         <p className="text-sm opacity-70 mb-1">Wrong network detected.</p>
         <p className="text-sm font-semibold mb-6">
-          Bhishi runs on <span className="text-turmeric">Ethereum Sepolia</span> testnet.
+          Bhishi runs on <span className="text-turmeric">MST Testnet</span>.
           <br />Please switch your wallet.
         </p>
         <div className="flex justify-center">
           <ConnectButton chainStatus="full" showBalance={false} />
         </div>
-        <p className="text-xs opacity-40 mt-4 font-mono">Chain ID required: 11155111</p>
+        <p className="text-xs opacity-40 mt-4 font-mono">Chain ID required: {MST_TESTNET_CHAIN_ID}</p>
       </div>
     </motion.div>
   );

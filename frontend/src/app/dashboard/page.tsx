@@ -126,10 +126,10 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsDeployerOpen(true)}
             className="btn btn-secondary flex items-center gap-2 shadow-hard-md"
-            title="Deploy Bhishi Contracts directly to Sepolia with your MetaMask wallet"
+            title="Deploy Bhishi Contracts directly to MST Testnet with your BridgeKey wallet"
           >
             <span>🚀</span>
-            <span>Deploy to Sepolia</span>
+            <span>Deploy to MST Testnet</span>
           </button>
 
           <button
@@ -179,7 +179,7 @@ export default function DashboardPage() {
               <div>
                 <p className="font-bold text-sm text-text-primary">💡 Showing Demo Simulation Circles</p>
                 <p className="text-xs text-text-secondary mt-0.5">
-                  Deploy Bhishi smart contracts directly to Ethereum Sepolia using your MetaMask wallet with 1-click!
+                  Deploy Bhishi smart contracts directly to MST Testnet using your BridgeKey wallet with 1-click!
                 </p>
               </div>
               <div className="flex items-center gap-2">

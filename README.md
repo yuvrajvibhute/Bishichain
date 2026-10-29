@@ -1,7 +1,7 @@
-# Bhishi.eth (बीशी) — Trustless Chit-Fund Committees on Ethereum
+# Bhishi (बीशी) — Trustless Chit-Fund Committees on MST Blockchain
 
 > **"Panchayat on chain. Bachat bina organizer."**  
-> Replace WhatsApp chaos and runaway organizers with trustless smart contracts on Ethereum Sepolia. Build verifiable on-chain financial reputation through soulbound Trust Score NFTs.
+> Replace WhatsApp chaos and runaway organizers with trustless smart contracts on MST Blockchain Testnet. Build verifiable on-chain financial reputation through soulbound Trust Score NFTs.
 
 ---
 
@@ -13,11 +13,25 @@ Traditional chit funds suffer from two fatal vulnerabilities:
 1. **The Runaway Organizer**: The committee leader collects the pot and vanishes.
 2. **The "Win & Ghost" Defaulter**: An early winner receives a massive pot, stops contributing to future rounds, and disappears.
 
-**Bhishi.eth solves both completely on-chain:**
+**Bhishi solves both completely on-chain:**
 - 🛡️ **Zero Trusted Organizer**: Smart contracts autonomously enforce deadlines, collect funds, conduct pseudo-random draws via `prevrandao`, and distribute winnings.
 - 🔒 **Collateral Escrow & Slashing**: Members lock 1x round contribution upfront as collateral. If a member misses a deadline, their collateral is slashed to fill the pot, and a default is permanently recorded.
 - ⏳ **30% Early-Winner Holdback**: When early winners claim, 30% of their winnings is held in trust until the entire circle finishes, disincentivizing ghosting.
 - 💎 **Soulbound Trust Score NFT (`TrustSBT`)**: Non-transferable ERC-721 token that computes your portable reputation directly on-chain (+10 pts per on-time payment, +50 pts per completed circle, -50 pts per default).
+
+---
+
+## 📜 Deployment Details (MST Testnet)
+
+* **Network Name:** MST Testnet
+* **Chain ID:** `91562037` (`0x5752035`)
+* **RPC URL:** `https://testnetrpc.mstblockchain.com`
+* **Native Token:** `tMSTC`
+* **Block Explorer:** [https://testnet.mstscan.com](https://testnet.mstscan.com)
+* **Deployment Transaction Hash:** [`0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58`](https://testnet.mstscan.com/tx/0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58)
+* **CircleFactory Contract:** [`0xf8a27c259a8912f17468b0bb15de371a25d9caab`](https://testnet.mstscan.com/address/0xf8a27c259a8912f17468b0bb15de371a25d9caab)
+* **TrustSBT Contract:** [`0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a`](https://testnet.mstscan.com/address/0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a)
+* **Supported Wallet:** **BridgeKey Wallet** (Native MST Blockchain Web3 Wallet)
 
 ---
 
@@ -35,7 +49,7 @@ graph TB
         C -->|records credit stats| TS
     end
 
-    subgraph "Frontend (Next.js 16 + Wagmi v2 + Viem + RainbowKit)"
+    subgraph "Frontend (Next.js 16 + Wagmi v2 + Viem + RainbowKit + BridgeKey)"
         LP["Landing Page (/)\n4-Beat Interactive Scroll Story"]
         DB["Dashboard (/dashboard)\nPassbook Cards & Multi-step Stepper"]
         CR["Circle Page (/circle/[address])\nLiving Ring SVG & Arena Controls"]
@@ -54,31 +68,31 @@ graph TB
 ### 1. Smart Contracts (Foundry)
 
 ```bash
-cd bhishi/contracts
+cd contracts
 
 # Run comprehensive test suite (28 passing tests)
 forge test -vv
 
-# Deploy to Sepolia (PowerShell)
-.\deploy.ps1 -RpcUrl $env:SEPOLIA_RPC_URL -PrivateKey $env:PRIVATE_KEY -EtherscanApiKey $env:ETHERSCAN_API_KEY
+# Deploy to MST Testnet (PowerShell)
+.\deploy.ps1 -PrivateKey $env:PRIVATE_KEY
 
-# Or using Bash
-chmod +x deploy.sh && ./deploy.sh
+# Or using Forge directly
+forge script script/Deploy.s.sol --rpc-url https://testnetrpc.mstblockchain.com --private-key $env:PRIVATE_KEY --broadcast -vvv
 ```
 
 ### 2. Frontend (Next.js 16 App Router)
 
 ```bash
-cd bhishi/frontend
+cd frontend
 
-# Install dependencies (already prepared)
+# Install dependencies
 npm install
 
 # Start local development server
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to interact with Bhishi.eth!
+Visit [http://localhost:3000](http://localhost:3000) with your **BridgeKey Wallet** extension enabled!
 
 ---
 
@@ -112,14 +126,14 @@ All 28 unit and fuzz tests pass:
 
 ---
 
-## 📜 Verified Contracts (Sepolia)
+## 📜 Verified Contracts (MST Testnet)
 
-| Contract | Description |
-|---|---|
-| `CircleFactory.sol` | Circle deployer & master registry |
-| `Circle.sol` | Core escrow, round timer, prevrandao PRNG draw |
-| `TrustSBT.sol` | Soulbound NFT with on-chain SVG generation |
+| Contract | Address | Description |
+|---|---|---|
+| `CircleFactory.sol` | [`0xf8a27c259a8912f17468b0bb15de371a25d9caab`](https://testnet.mstscan.com/address/0xf8a27c259a8912f17468b0bb15de371a25d9caab) | Circle deployer & master registry |
+| `TrustSBT.sol` | [`0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a`](https://testnet.mstscan.com/address/0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a) | Soulbound NFT with on-chain SVG generation |
+| `Circle.sol` | *Spawned dynamically by factory* | Core escrow, round timer, prevrandao PRNG draw |
 
 ---
 
-Developed for Devcon Hackathon.
+Developed for **MST Blockchain Buildathon**.

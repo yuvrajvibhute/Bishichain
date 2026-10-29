@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DirectSepoliaConnect } from './DirectSepoliaConnect';
 import { useChainId } from 'wagmi';
-import { SEPOLIA_CHAIN_ID } from '@/lib/wagmi';
+import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
 import { motion } from 'framer-motion';
 import { useTheme } from './ThemeProvider';
 
@@ -12,7 +12,7 @@ export function Navbar() {
   const chainId = useChainId();
   const pathname = usePathname();
   const { theme, toggleTheme, isMobilePreview, toggleMobilePreview } = useTheme();
-  const wrongNetwork = chainId !== undefined && chainId !== SEPOLIA_CHAIN_ID && chainId !== 0;
+  const wrongNetwork = chainId !== undefined && chainId !== MST_TESTNET_CHAIN_ID && chainId !== 0;
 
   return (
     <header className="border-b-2 border-border bg-surface/90 backdrop-blur-md sticky top-0 z-50 transition-colors">
@@ -96,11 +96,11 @@ export function Navbar() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex items-center gap-1 text-xs font-bold text-sindoor bg-sindoor/10 border-2 border-sindoor px-2.5 py-1 rounded"
             >
-              ⚠ <span className="hidden sm:inline">Switch to</span> Sepolia
+              ⚠ <span className="hidden sm:inline">Switch to</span> MST Testnet
             </motion.span>
           )}
 
-          {/* Wallet Connection: Direct 1-click Sepolia connect */}
+          {/* Wallet Connection: Direct 1-click BridgeKey connect */}
           <DirectSepoliaConnect />
         </div>
       </div>

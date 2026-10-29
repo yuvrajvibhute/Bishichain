@@ -16,7 +16,7 @@ runs = 256
 runs = 64
 
 [rpc_endpoints]
-sepolia = "${SEPOLIA_RPC_URL}"
+mst_testnet = "https://testnetrpc.mstblockchain.com"
 
 [etherscan]
 sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }

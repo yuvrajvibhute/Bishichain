@@ -11,10 +11,10 @@ export async function POST(req: Request) {
     }
 
     const envPath = path.join(process.cwd(), '.env.local');
-    const content = `NEXT_PUBLIC_CHAIN_ID=11155111
+    const content = `NEXT_PUBLIC_CHAIN_ID=91562037
 NEXT_PUBLIC_CIRCLE_FACTORY=${factoryAddress}
 NEXT_PUBLIC_TRUST_SBT=${trustSbtAddress || ''}
-NEXT_PUBLIC_ETHERSCAN_BASE=https://sepolia.etherscan.io
+NEXT_PUBLIC_ETHERSCAN_BASE=https://testnet.mstscan.com
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=b56e18d47c72ab683b10814fe9495694
 `;
 

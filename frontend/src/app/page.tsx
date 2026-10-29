@@ -27,7 +27,7 @@ export default function LandingPage() {
           >
             <span className="w-2 h-2 rounded-full bg-turmeric animate-pulse" />
             <span className="text-xs font-mono font-bold tracking-wider uppercase text-text-primary">
-              Live on Ethereum Sepolia • Trustless ROSCA
+              Live on MST Testnet • Trustless ROSCA
             </span>
           </motion.div>
 
@@ -302,7 +302,7 @@ export default function LandingPage() {
             Ready to Start Your First Bhishi?
           </h2>
           <p className="text-text-secondary text-sm sm:text-base max-w-xl mx-auto mb-8 font-ui">
-            Connect your wallet, deploy a circle in 30 seconds, or join an active community pool on Ethereum Sepolia.
+            Connect your wallet, deploy a circle in 30 seconds, or join an active community pool on MST Testnet.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/dashboard" className="btn btn-primary btn-lg shadow-hard-md">
@@ -332,12 +332,12 @@ export default function LandingPage() {
               Trust Score
             </Link>
             <a
-              href="https://sepolia.etherscan.io"
+              href="https://testnet.mstscan.com"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-text-primary transition-colors"
             >
-              Sepolia Etherscan ↗
+              MSTScan ↗
             </a>
           </div>
         </div>

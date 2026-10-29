@@ -1,14 +1,14 @@
 import { formatEther } from 'viem';
 
 /**
- * Format ETH value for display (e.g. "0.1 ETH")
+ * Format token value for display (e.g. "0.1 tMSTC")
  */
 export function formatEth(value: bigint, decimals = 4): string {
-  return `${parseFloat(formatEther(value)).toFixed(decimals)} ETH`;
+  return `${parseFloat(formatEther(value)).toFixed(decimals)} tMSTC`;
 }
 
 /**
- * Shorten an Ethereum address for display
+ * Shorten an Ethereum/MST address for display
  */
 export function shortAddr(addr: string): string {
   if (!addr || addr.length < 10) return addr;
@@ -58,17 +58,19 @@ export function circleStateName(state: number): 'OPEN' | 'RUNNING' | 'DONE' {
 }
 
 /**
- * Etherscan tx link
+ * MSTScan tx link
  */
 export function etherscanTx(hash: string): string {
-  return `https://sepolia.etherscan.io/tx/${hash}`;
+  const base = process.env.NEXT_PUBLIC_ETHERSCAN_BASE || 'https://testnet.mstscan.com';
+  return `${base.replace(/\/$/, '')}/tx/${hash}`;
 }
 
 /**
- * Etherscan address link
+ * MSTScan address link
  */
 export function etherscanAddr(addr: string): string {
-  return `https://sepolia.etherscan.io/address/${addr}`;
+  const base = process.env.NEXT_PUBLIC_ETHERSCAN_BASE || 'https://testnet.mstscan.com';
+  return `${base.replace(/\/$/, '')}/address/${addr}`;
 }
 
 /**
@@ -78,11 +80,16 @@ export function parseSbtMetadata(dataUri: string): { image: string; attributes: 
   try {
     const base64Json = dataUri.replace('data:application/json;base64,', '');
     const json = JSON.parse(atob(base64Json));
-    const attrs: Record<string, string> = {};
-    (json.attributes || []).forEach((a: { trait_type: string; value: string }) => {
-      attrs[a.trait_type] = a.value;
-    });
-    return { image: json.image, attributes: attrs };
+    const attributes: Record<string, string> = {};
+    if (Array.isArray(json.attributes)) {
+      for (const attr of json.attributes) {
+        attributes[attr.trait_type] = String(attr.value);
+      }
+    }
+    return {
+      image: json.image || '',
+      attributes,
+    };
   } catch {
     return { image: '', attributes: {} };
   }

@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAccount, useConnect } from 'wagmi';
 import { CIRCLE_FACTORY_BYTECODE } from '@/contracts/bytecode';
-import { SEPOLIA_CHAIN_ID, SEPOLIA_RPC } from '@/lib/wagmi';
+import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
 import { toasts } from './ToastContainer';
 import { Confetti } from './Confetti';
 import { shortAddr, etherscanAddr, etherscanTx } from '@/lib/utils';
-import { connectDirectSepolia } from '@/lib/wallet';
+import { connectDirectMst, getBridgeKeyProvider } from '@/lib/wallet';
 
 interface Props {
   isOpen: boolean;
@@ -33,11 +33,11 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
     try {
       setErrorMessage(null);
 
-      // Ensure wallet is connected on Sepolia
+      // Ensure wallet is connected on MST Testnet
       let activeAddr = userAddress;
       if (!isConnected || !activeAddr) {
         setStatus('prompting');
-        const connected = await connectDirectSepolia(connectors, connectAsync);
+        const connected = await connectDirectMst(connectors, connectAsync);
         if (!connected) {
           setStatus('idle');
           return;
@@ -45,10 +45,15 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
         activeAddr = connected as `0x${string}`;
       }
 
+      const provider = getBridgeKeyProvider();
+      if (!provider) {
+        throw new Error('BridgeKey Wallet provider not found. Please ensure BridgeKey is installed and unlocked.');
+      }
+
       setStatus('prompting');
 
       // Submit contract deployment transaction (bytecode with no 'to' field)
-      const hash = await (window as any).ethereum.request({
+      const hash = await provider.request({
         method: 'eth_sendTransaction',
         params: [
           {
@@ -63,7 +68,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       toasts.add({
         type: 'pending',
         title: 'Deployment Submitted! 🚀',
-        message: 'Mining CircleFactory on Ethereum Sepolia...',
+        message: 'Mining CircleFactory on MST Testnet...',
         txHash: hash,
       });
 
@@ -76,7 +81,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
         attempts++;
 
         try {
-          const receipt = await (window as any).ethereum.request({
+          const receipt = await provider.request({
             method: 'eth_getTransactionReceipt',
             params: [hash],
           });
@@ -90,7 +95,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       }
 
       if (!contractAddress) {
-        throw new Error('Deployment transaction timed out while waiting for Sepolia receipt. Check Etherscan.');
+        throw new Error('Deployment transaction timed out while waiting for receipt. Check MSTScan.');
       }
 
       setDeployedFactory(contractAddress);
@@ -98,7 +103,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       // Read trustSBT address from factory via eth_call (trustSBT() selector: 0x752da1bf)
       let sbtAddress = '';
       try {
-        const sbtRaw = await (window as any).ethereum.request({
+        const sbtRaw = await provider.request({
           method: 'eth_call',
           params: [
             {
@@ -142,7 +147,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
 
       toasts.add({
         type: 'success',
-        title: 'Contracts Deployed to Sepolia! 🎉',
+        title: 'Contracts Deployed to MST Testnet! 🎉',
         message: `CircleFactory is live at ${shortAddr(contractAddress)}`,
         txHash: hash,
       });
@@ -154,8 +159,8 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       console.error('Deployment error:', err);
       setStatus('error');
       const msg = err.message?.includes('User rejected')
-        ? 'Deployment cancelled in MetaMask.'
-        : err.message || 'Deployment failed. Check your Sepolia ETH balance.';
+        ? 'Deployment cancelled in BridgeKey.'
+        : err.message || 'Deployment failed. Check your MST testnet tMSTC balance.';
       setErrorMessage(msg);
       toasts.add({
         type: 'error',
@@ -190,21 +195,21 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
         </div>
 
         <h2 className="font-display text-2xl font-bold text-text-primary mb-2">
-          Deploy Bhishi Contracts to Sepolia
+          Deploy Bhishi Contracts to MST Testnet
         </h2>
         <p className="text-xs text-text-secondary mb-6 font-ui">
-          Deploys the smart contract core (<strong>CircleFactory</strong> + <strong>TrustSBT Soulbound NFT</strong>) directly to Ethereum Sepolia with your connected MetaMask wallet. No private keys required.
+          Deploys the smart contract core (<strong>CircleFactory</strong> + <strong>TrustSBT Soulbound NFT</strong>) directly to MST Testnet with your connected BridgeKey wallet. No private keys required.
         </p>
 
         {/* Specs Table */}
         <div className="p-4 bg-surface-hover border-2 border-border space-y-2 font-mono text-xs mb-6 rounded">
           <div className="flex justify-between">
             <span className="text-text-muted">Target Network:</span>
-            <span className="font-bold text-text-primary">Ethereum Sepolia (11155111)</span>
+            <span className="font-bold text-text-primary">MST Testnet ({MST_TESTNET_CHAIN_ID})</span>
           </div>
           <div className="flex justify-between">
             <span className="text-text-muted">Deployer Account:</span>
-            <span className="font-bold text-turmeric">{userAddress ? shortAddr(userAddress) : 'Connect Wallet'}</span>
+            <span className="font-bold text-turmeric">{userAddress ? shortAddr(userAddress) : 'Connect BridgeKey'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-text-muted">Contracts Deployed:</span>
@@ -212,14 +217,14 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
           </div>
           <div className="flex justify-between">
             <span className="text-text-muted">Estimated Gas:</span>
-            <span className="font-bold text-tulsi">~0.015 - 0.025 Sepolia ETH</span>
+            <span className="font-bold text-tulsi">~0.015 - 0.025 tMSTC</span>
           </div>
         </div>
 
         {/* Live Status Stages */}
         {status === 'prompting' && (
           <div className="p-4 bg-turmeric/15 border-2 border-turmeric text-center font-mono text-xs rounded mb-4 animate-pulse">
-            🦊 MetaMask prompt open... Please confirm the deployment in your MetaMask extension.
+            🔑 BridgeKey prompt open... Please confirm the deployment in your BridgeKey wallet.
           </div>
         )}
 
@@ -227,7 +232,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
           <div className="p-4 bg-marigold/15 border-2 border-marigold text-center font-mono text-xs rounded mb-4 space-y-2">
             <div className="flex items-center justify-center gap-2 font-bold text-marigold">
               <span className="animate-spin">⏳</span>
-              <span>Mining contract on Sepolia testnet...</span>
+              <span>Mining contract on MST Testnet...</span>
             </div>
             {txHash && (
               <a
@@ -236,7 +241,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
                 rel="noreferrer"
                 className="inline-block text-xs text-text-primary underline hover:text-turmeric"
               >
-                View Pending Tx on Etherscan ↗
+                View Pending Tx on MSTScan ↗
               </a>
             )}
           </div>
@@ -309,8 +314,8 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
                 {status === 'prompting'
                   ? 'Confirming in Wallet...'
                   : status === 'mining'
-                  ? 'Deploying on Sepolia...'
-                  : 'Confirm & Deploy with MetaMask'}
+                  ? 'Deploying on MST Testnet...'
+                  : 'Confirm & Deploy with BridgeKey'}
               </span>
             </button>
           ) : (

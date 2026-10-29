@@ -12,7 +12,7 @@ import { toasts } from '@/components/ToastContainer';
 import { ActionSheet } from '@/components/ActionSheet';
 import { Confetti } from '@/components/Confetti';
 import { formatEth, shortAddr, etherscanAddr, circleStateName, addrColor } from '@/lib/utils';
-import { isDemoAddress, getCircleLocalState, setCircleLocalState, connectDirectSepolia } from '@/lib/wallet';
+import { isDemoAddress, getCircleLocalState, setCircleLocalState, connectDirectSepolia, getBridgeKeyProvider } from '@/lib/wallet';
 
 // Default mock profiles for hackathon demo circles
 const DEMO_PRESETS: Record<string, any> = {
@@ -370,13 +370,13 @@ function CircleDetailContent() {
         toasts.add({
           type: 'pending',
           title: 'Transaction Submitted',
-          message: 'Mining on Sepolia testnet...',
+          message: 'Mining on MST Testnet...',
           txHash: hash,
         });
       },
       onError: (err) => {
         const msg = err.message.includes('User rejected')
-          ? 'Transaction cancelled in MetaMask.'
+          ? 'Transaction cancelled in BridgeKey.'
           : (err as any).shortMessage || err.message;
         toasts.add({
           type: 'error',
@@ -405,19 +405,20 @@ function CircleDetailContent() {
       toasts.add({
         type: 'error',
         title: 'Wallet Connection Required',
-        message: 'Please connect your MetaMask Sepolia wallet to proceed.',
+        message: 'Please connect your BridgeKey wallet to proceed.',
       });
       return false;
     }
     return true;
   };
 
-  // Helper to send real on-chain transaction through MetaMask
+  // Helper to send real on-chain transaction through BridgeKey
   const sendMetaMaskTx = async (toAddr: string, valWei: bigint, dataHex?: string): Promise<string> => {
-    if (typeof window === 'undefined' || !(window as any).ethereum) {
-      throw new Error('MetaMask not detected');
+    const provider = getBridgeKeyProvider();
+    if (!provider) {
+      throw new Error('BridgeKey wallet not detected');
     }
-    const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await provider.request({ method: 'eth_requestAccounts' });
     const from = accounts[0];
     const destination = toAddr && toAddr.startsWith('0x') && toAddr.length === 42 ? toAddr : circleAddress;
 
@@ -433,7 +434,7 @@ function CircleDetailContent() {
     }
 
     try {
-      const tx = await (window as any).ethereum.request({
+      const tx = await provider.request({
         method: 'eth_sendTransaction',
         params: [txParams],
       });
@@ -441,8 +442,8 @@ function CircleDetailContent() {
     } catch (err: any) {
       // If user has low testnet balance, retry with nominal gas amount so tx still confirms in wallet
       if (err.message?.includes('insufficient funds') || err.code === -32000) {
-        txParams.value = '0x2386f26fc10000'; // 0.0001 Sepolia ETH
-        const tx = await (window as any).ethereum.request({
+        txParams.value = '0x2386f26fc10000'; // 0.0001 tMSTC
+        const tx = await provider.request({
           method: 'eth_sendTransaction',
           params: [txParams],
         });
@@ -452,7 +453,7 @@ function CircleDetailContent() {
     }
   };
 
-  // --- Handlers: Real MetaMask Transactions + Immediate UI Feedback ---
+  // --- Handlers: Real BridgeKey Transactions + Immediate UI Feedback ---
 
   const handleJoin = async () => {
     const ready = await requireConnection();
@@ -470,7 +471,7 @@ function CircleDetailContent() {
 
     try {
       setIsSimulatingTx(true);
-      // Trigger real MetaMask transaction to circle address
+      // Trigger real BridgeKey transaction to circle address
       const txHash = await sendMetaMaskTx(circleAddress, contribution);
 
       setIsSimulatingTx(false);
@@ -495,13 +496,13 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: 'Collateral Locked in Wallet! 🛡️',
-        message: `Mined on Sepolia! ${formatEth(contribution, 3)} locked in escrow.`,
+        message: `Mined on MST Testnet! ${formatEth(contribution, 3)} locked in escrow.`,
         txHash: txHash,
       });
     } catch (err: any) {
       setIsSimulatingTx(false);
       const msg = err.message?.includes('User rejected')
-        ? 'Transaction cancelled in MetaMask.'
+        ? 'Transaction cancelled in BridgeKey.'
         : err.message || 'Join failed';
       toasts.add({
         type: 'error',
@@ -536,14 +537,14 @@ function CircleDetailContent() {
       }));
       toasts.add({
         type: 'success',
-        title: 'Circle Started on Sepolia! 🚀',
+        title: 'Circle Started on MST Testnet! 🚀',
         message: 'Round 1 is now active. Members can pool their deposits.',
         txHash: txHash,
       });
     } catch (err: any) {
       setIsSimulatingTx(false);
       const msg = err.message?.includes('User rejected')
-        ? 'Transaction cancelled in MetaMask.'
+        ? 'Transaction cancelled in BridgeKey.'
         : err.message || 'Start failed';
       toasts.add({
         type: 'error',
@@ -569,7 +570,7 @@ function CircleDetailContent() {
 
     try {
       setIsSimulatingTx(true);
-      // Trigger real MetaMask popup for round deposit to circle address
+      // Trigger real BridgeKey popup for round deposit to circle address
       const txHash = await sendMetaMaskTx(circleAddress, contribution);
 
       setIsSimulatingTx(false);
@@ -595,13 +596,13 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: `Round ${currentRound} Deposit Confirmed in Wallet! ⚡`,
-        message: `Mined on Sepolia! ${formatEth(contribution, 3)} deposited. All members have paid! Ready to settle round.`,
+        message: `Mined on MST Testnet! ${formatEth(contribution, 3)} deposited. All members have paid! Ready to settle round.`,
         txHash: txHash,
       });
     } catch (err: any) {
       setIsSimulatingTx(false);
       const msg = err.message?.includes('User rejected')
-        ? 'Transaction cancelled in MetaMask.'
+        ? 'Transaction cancelled in BridgeKey.'
         : err.message || 'Deposit failed';
       toasts.add({
         type: 'error',
@@ -626,7 +627,7 @@ function CircleDetailContent() {
 
     try {
       setIsSimulatingTx(true);
-      // Trigger real MetaMask settlement transaction to circle address
+      // Trigger real BridgeKey settlement transaction to circle address
       const txHash = await sendMetaMaskTx(circleAddress, 0n);
 
       setIsSimulatingTx(false);
@@ -662,7 +663,7 @@ function CircleDetailContent() {
 
       toasts.add({
         type: 'success',
-        title: `🏆 Winner Drawn on Sepolia!`,
+        title: `🏆 Winner Drawn on MST Testnet!`,
         message: `Pot of ${formatEth(potValue, 3)} awarded to ${shortAddr(chosen.address)}! ${
           isUserWinner ? 'Aap jeete hain! Click Claim to withdraw.' : ''
         }`,
@@ -671,7 +672,7 @@ function CircleDetailContent() {
     } catch (err: any) {
       setIsSimulatingTx(false);
       const msg = err.message?.includes('User rejected')
-        ? 'Transaction cancelled in MetaMask.'
+        ? 'Transaction cancelled in BridgeKey.'
         : err.message || 'Settlement failed';
       toasts.add({
         type: 'error',
@@ -696,7 +697,7 @@ function CircleDetailContent() {
 
     try {
       setIsSimulatingTx(true);
-      // Trigger real MetaMask transaction for claiming winnings to circle address
+      // Trigger real BridgeKey transaction for claiming winnings to circle address
       const txHash = await sendMetaMaskTx(circleAddress, 0n);
 
       setIsSimulatingTx(false);
@@ -708,14 +709,14 @@ function CircleDetailContent() {
       setConfettiActive(true);
       toasts.add({
         type: 'success',
-        title: 'Winnings Claimed on Sepolia! 💰',
+        title: 'Winnings Claimed on MST Testnet! 💰',
         message: `${formatEth(claimedAmount, 4)} confirmed and recorded in your wallet.`,
         txHash: txHash,
       });
     } catch (err: any) {
       setIsSimulatingTx(false);
       const msg = err.message?.includes('User rejected')
-        ? 'Transaction cancelled in MetaMask.'
+        ? 'Transaction cancelled in BridgeKey.'
         : err.message || 'Claim failed';
       toasts.add({
         type: 'error',

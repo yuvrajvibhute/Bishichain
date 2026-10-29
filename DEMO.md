@@ -1,6 +1,11 @@
 # Bhishi.eth — Hackathon Demo Guide 🎙️
 
-Welcome judges and evaluators! This guide walks you through every feature and user journey of **Bhishi.eth** on Ethereum Sepolia.
+Welcome judges and evaluators! This guide walks you through every feature and user journey of **Bhishi** on MST Blockchain Testnet.
+
+### 📜 Live On-Chain Deployments (MST Testnet)
+* **Deployment Tx:** [`0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58`](https://testnet.mstscan.com/tx/0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58)
+* **CircleFactory Contract:** [`0xf8a27c259a8912f17468b0bb15de371a25d9caab`](https://testnet.mstscan.com/address/0xf8a27c259a8912f17468b0bb15de371a25d9caab)
+* **TrustSBT Contract:** [`0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a`](https://testnet.mstscan.com/address/0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a)
 
 ---
 
@@ -17,7 +22,7 @@ Welcome judges and evaluators! This guide walks you through every feature and us
 
 ## 🏛️ 2. Passbook Dashboard (`/dashboard`)
 
-1. Connect your wallet using the **RainbowKit** button in the top right. Make sure your network is set to **Ethereum Sepolia**.
+1. Connect your wallet using the **BridgeKey** button in the top right. Make sure your network is set to **MST Testnet**.
 2. **Filter Tabs**: Browse `All`, `Open (Joining)`, `Active (Running)`, or `Demo Simulation`.
 3. Click **"➕ Nayi Bhishi Banayein"** to trigger the **Conversational Stepper**:
    - **Step 1**: Choose contribution amount (e.g. `0.005 ETH`, `0.01 ETH`, or custom).
@@ -65,3 +70,12 @@ In `bhishi/contracts`:
 & "$HOME\.foundry\bin\forge.exe" test -vv
 ```
 All 28 tests will execute in milliseconds verifying happy path, default slashing, holdback escrow, and soulbound restrictions.
+
+---
+
+## 📜 Live MST Testnet Deployment
+
+- **Deployment Tx Hash:** [`0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58`](https://testnet.mstscan.com/tx/0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58)
+- **CircleFactory Contract:** [`0xf8a27c259a8912f17468b0bb15de371a25d9caab`](https://testnet.mstscan.com/address/0xf8a27c259a8912f17468b0bb15de371a25d9caab)
+- **TrustSBT Contract:** [`0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a`](https://testnet.mstscan.com/address/0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a)
+
