@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { DirectSepoliaConnect } from './DirectSepoliaConnect';
 import { useChainId } from 'wagmi';
-import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
+import { MST_TESTNET_CHAIN_ID, MST_MAINNET_CHAIN_ID } from '@/lib/wagmi';
 import { motion } from 'framer-motion';
 import { useTheme } from './ThemeProvider';
 
@@ -12,23 +13,24 @@ export function Navbar() {
   const chainId = useChainId();
   const pathname = usePathname();
   const { theme, toggleTheme, isMobilePreview, toggleMobilePreview } = useTheme();
-  const wrongNetwork = chainId !== undefined && chainId !== MST_TESTNET_CHAIN_ID && chainId !== 0;
+  const wrongNetwork = chainId !== undefined && chainId !== MST_TESTNET_CHAIN_ID && chainId !== MST_MAINNET_CHAIN_ID && chainId !== 0;
 
   return (
     <header className="border-b-2 border-border bg-surface/90 backdrop-blur-md sticky top-0 z-50 transition-colors">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Brand / Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-md bg-turmeric border-2 border-border shadow-hard-sm flex items-center justify-center font-display font-black text-ink text-lg group-hover:scale-105 transition-transform">
-            भ
-          </div>
+          <Image
+            src="/bhishi-matka.svg"
+            alt="Bhishi"
+            width={40}
+            height={40}
+            className="transition-transform group-hover:scale-105"
+          />
           <div>
             <div className="flex items-center gap-1.5 leading-none">
               <span className="font-display text-xl font-black text-text-primary tracking-tight">
-                भिशी
-              </span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-turmeric/20 text-turmeric border border-turmeric/40">
-                .eth
+                भिशी Chain
               </span>
             </div>
             <span className="text-[10px] font-mono text-text-muted hidden sm:block tracking-wider uppercase mt-0.5">
@@ -96,7 +98,7 @@ export function Navbar() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex items-center gap-1 text-xs font-bold text-sindoor bg-sindoor/10 border-2 border-sindoor px-2.5 py-1 rounded"
             >
-              ⚠ <span className="hidden sm:inline">Switch to</span> MST Testnet
+              ⚠ <span className="hidden sm:inline">Unsupported</span> Network
             </motion.span>
           )}
 

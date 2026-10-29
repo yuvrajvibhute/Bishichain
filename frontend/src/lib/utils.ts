@@ -1,10 +1,24 @@
 import { formatEther } from 'viem';
 
 /**
- * Format token value for display (e.g. "0.1 tMSTC")
+ * Returns the block explorer base URL based on chain ID or localStorage
  */
-export function formatEth(value: bigint, decimals = 4): string {
-  return `${parseFloat(formatEther(value)).toFixed(decimals)} tMSTC`;
+export function getExplorerBase(chainId?: number): string {
+  if (chainId === 4646) return 'https://mstscan.com';
+  if (chainId === 91562037) return 'https://testnet.mstscan.com';
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('bhishi_active_chain');
+    if (saved === '4646') return 'https://mstscan.com';
+  }
+  return process.env.NEXT_PUBLIC_ETHERSCAN_BASE || 'https://testnet.mstscan.com';
+}
+
+/**
+ * Format token value for display (e.g. "0.1 tMSTC" or "0.1 MSTC")
+ */
+export function formatEth(value: bigint, decimals = 4, symbol?: string): string {
+  const s = symbol || (typeof window !== 'undefined' && localStorage.getItem('bhishi_active_chain') === '4646' ? 'MSTC' : 'tMSTC');
+  return `${parseFloat(formatEther(value)).toFixed(decimals)} ${s}`;
 }
 
 /**
@@ -58,18 +72,18 @@ export function circleStateName(state: number): 'OPEN' | 'RUNNING' | 'DONE' {
 }
 
 /**
- * MSTScan tx link
+ * MSTScan tx link (MST Mainnet or Testnet)
  */
-export function etherscanTx(hash: string): string {
-  const base = process.env.NEXT_PUBLIC_ETHERSCAN_BASE || 'https://testnet.mstscan.com';
+export function etherscanTx(hash: string, chainId?: number): string {
+  const base = getExplorerBase(chainId);
   return `${base.replace(/\/$/, '')}/tx/${hash}`;
 }
 
 /**
- * MSTScan address link
+ * MSTScan address link (MST Mainnet or Testnet)
  */
-export function etherscanAddr(addr: string): string {
-  const base = process.env.NEXT_PUBLIC_ETHERSCAN_BASE || 'https://testnet.mstscan.com';
+export function etherscanAddr(addr: string, chainId?: number): string {
+  const base = getExplorerBase(chainId);
   return `${base.replace(/\/$/, '')}/address/${addr}`;
 }
 
