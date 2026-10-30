@@ -163,7 +163,7 @@ export default function LandingPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="px-2.5 py-1 text-xs font-mono font-bold bg-tulsi/15 text-tulsi border border-tulsi">
-                    ✓ BHISHI.ETH PROTOCOL
+                    ✓ BHISHI.MST PROTOCOL
                   </span>
                   <span className="font-mono text-xs text-tulsi font-bold">100% AUTONOMOUS</span>
                 </div>
@@ -208,7 +208,7 @@ export default function LandingPage() {
               Mathematical Game Theory
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-text-primary mt-2">
-              The 4 Bulletproof Rules of Bhishi.eth
+              The 4 Bulletproof Rules of Bhishi.mst
             </h2>
             <p className="text-sm text-text-secondary mt-2">
               Engineered to make honesty the only mathematically profitable strategy for all committee members.
@@ -320,7 +320,7 @@ export default function LandingPage() {
       <footer className="py-8 px-4 border-t-2 border-border bg-surface text-center font-mono text-xs text-text-muted">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-display font-black text-text-primary text-sm">भिशी.eth</span>
+            <span className="font-display font-black text-text-primary text-sm">भिशी.mst</span>
             <span>• Decentralized Community Savings</span>
           </div>
           <div className="flex items-center gap-4">
