@@ -37,7 +37,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       let activeAddr = userAddress;
       if (!isConnected || !activeAddr) {
         setStatus('prompting');
-        const connected = await connectDirectMst(connectors, connectAsync);
+        const connected = await connectDirectMst(MST_TESTNET_CHAIN_ID, connectors, connectAsync);
         if (!connected) {
           setStatus('idle');
           return;

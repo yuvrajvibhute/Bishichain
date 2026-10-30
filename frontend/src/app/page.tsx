@@ -25,10 +25,9 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-border bg-surface shadow-hard-sm mb-6"
           >
-            <span className="w-2 h-2 rounded-full bg-turmeric animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-tulsi animate-pulse" />
             <span className="text-xs font-mono font-bold tracking-wider uppercase text-text-primary">
-              Live on MST Testnet • Trustless ROSCA
-            </span>
+              Live on MST Mainnet/Testnet            </span>
           </motion.div>
 
           {/* Main Title */}
