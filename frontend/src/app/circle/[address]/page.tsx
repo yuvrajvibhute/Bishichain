@@ -749,7 +749,7 @@ function CircleDetailContent() {
         <div className="flex items-center gap-2">
           {isDemo && (
             <span className="px-2.5 py-1 bg-turmeric/20 text-turmeric border border-turmeric text-xs font-mono font-bold">
-              ⚡ Sepolia Sandbox
+              ⚡ MST Sandbox
             </span>
           )}
           <span
