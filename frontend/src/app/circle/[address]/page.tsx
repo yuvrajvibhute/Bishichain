@@ -13,6 +13,7 @@ import { ActionSheet } from '@/components/ActionSheet';
 import { Confetti } from '@/components/Confetti';
 import { formatEth, shortAddr, etherscanAddr, circleStateName, addrColor } from '@/lib/utils';
 import { isDemoAddress, getCircleLocalState, setCircleLocalState, connectDirectSepolia, getBridgeKeyProvider } from '@/lib/wallet';
+import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
 
 // Default mock profiles for hackathon demo circles
 const DEMO_PRESETS: Record<string, any> = {
@@ -400,7 +401,7 @@ function CircleDetailContent() {
   // Ensure connection helper
   const requireConnection = async (): Promise<boolean> => {
     if (isConnected) return true;
-    const acc = await connectDirectSepolia(connectors, connectAsync);
+    const acc = await connectDirectSepolia(MST_TESTNET_CHAIN_ID, connectors, connectAsync);
     if (!acc) {
       toasts.add({
         type: 'error',
