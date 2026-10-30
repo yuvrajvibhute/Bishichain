@@ -830,7 +830,7 @@ function CircleDetailContent() {
                   disabled={isPending || isTxWaiting}
                   className="btn btn-secondary font-bold text-xs"
                 >
-                  {isPending ? 'Claiming...' : 'Claim ETH'}
+                  {isPending ? 'Claiming...' : 'Claim Winnings'}
                 </button>
               </div>
             </motion.div>
