@@ -11,8 +11,8 @@ import { LivingCircle } from '@/components/LivingCircle';
 import { toasts } from '@/components/ToastContainer';
 import { ActionSheet } from '@/components/ActionSheet';
 import { Confetti } from '@/components/Confetti';
-import { formatEth, shortAddr, etherscanAddr, circleStateName, addrColor } from '@/lib/utils';
-import { isDemoAddress, getCircleLocalState, setCircleLocalState, connectDirectSepolia, getBridgeKeyProvider } from '@/lib/wallet';
+import { formatMst, shortAddr, mstscanAddr, circleStateName, addrColor } from '@/lib/utils';
+import { isDemoAddress, getCircleLocalState, setCircleLocalState, connectDirectMst, getBridgeKeyProvider } from '@/lib/wallet';
 import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
 
 // Default mock profiles for hackathon demo circles
@@ -401,7 +401,7 @@ function CircleDetailContent() {
   // Ensure connection helper
   const requireConnection = async (): Promise<boolean> => {
     if (isConnected) return true;
-    const acc = await connectDirectSepolia(MST_TESTNET_CHAIN_ID, connectors, connectAsync);
+    const acc = await connectDirectMst(MST_TESTNET_CHAIN_ID, connectors, connectAsync);
     if (!acc) {
       toasts.add({
         type: 'error',
@@ -497,7 +497,7 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: 'Collateral Locked in Wallet! 🛡️',
-        message: `Mined on MST Testnet! ${formatEth(contribution, 3)} locked in escrow.`,
+        message: `Mined on MST Testnet! ${formatMst(contribution, 3)} locked in escrow.`,
         txHash: txHash,
       });
     } catch (err: any) {
@@ -597,7 +597,7 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: `Round ${currentRound} Deposit Confirmed in Wallet! ⚡`,
-        message: `Mined on MST Testnet! ${formatEth(contribution, 3)} deposited. All members have paid! Ready to settle round.`,
+        message: `Mined on MST Testnet! ${formatMst(contribution, 3)} deposited. All members have paid! Ready to settle round.`,
         txHash: txHash,
       });
     } catch (err: any) {
@@ -665,7 +665,7 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: `🏆 Winner Drawn on MST Testnet!`,
-        message: `Pot of ${formatEth(potValue, 3)} awarded to ${shortAddr(chosen.address)}! ${
+        message: `Pot of ${formatMst(potValue, 3)} awarded to ${shortAddr(chosen.address)}! ${
           isUserWinner ? 'Aap jeete hain! Click Claim to withdraw.' : ''
         }`,
         txHash: txHash,
@@ -711,7 +711,7 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: 'Winnings Claimed on MST Testnet! 💰',
-        message: `${formatEth(claimedAmount, 4)} confirmed and recorded in your wallet.`,
+        message: `${formatMst(claimedAmount, 4)} confirmed and recorded in your wallet.`,
         txHash: txHash,
       });
     } catch (err: any) {
@@ -762,7 +762,7 @@ function CircleDetailContent() {
             {circleStateName(state)}
           </span>
           <a
-            href={etherscanAddr(circleAddress)}
+            href={mstscanAddr(circleAddress)}
             target="_blank"
             rel="noopener noreferrer"
             className="px-2.5 py-1 bg-surface border-2 border-border text-xs font-mono font-bold hover:bg-surface-hover text-text-primary"
@@ -783,7 +783,7 @@ function CircleDetailContent() {
             </div>
             <div className="text-right">
               <span className="text-xs text-text-muted font-mono block">Grand Pot</span>
-              <span className="font-mono font-black text-xl text-text-primary tabular">{formatEth(currentPot, 3)}</span>
+              <span className="font-mono font-black text-xl text-text-primary tabular">{formatMst(currentPot, 3)}</span>
             </div>
           </div>
 
@@ -821,7 +821,7 @@ function CircleDetailContent() {
                     🏆 Aap Jeete Hain! / Winnings Ready
                   </p>
                   <p className="font-mono text-2xl font-black text-text-primary mt-0.5">
-                    {formatEth(userClaimable, 4)}
+                    {formatMst(userClaimable, 4)}
                   </p>
                   <p className="text-xs text-text-secondary mt-1">Winning pot available to pull to your account.</p>
                 </div>
@@ -873,7 +873,7 @@ function CircleDetailContent() {
             <div className="grid grid-cols-2 gap-3 pt-3 border-t-2 border-border/20 font-mono text-xs text-text-secondary">
               <div>
                 <span className="text-text-muted block">Contribution</span>
-                <span className="font-bold text-sm text-text-primary">{formatEth(contribution, 3)}</span>
+                <span className="font-bold text-sm text-text-primary">{formatMst(contribution, 3)}</span>
               </div>
               <div>
                 <span className="text-text-muted block">Round Duration</span>
@@ -902,14 +902,14 @@ function CircleDetailContent() {
                 {!isJoined ? (
                   <div>
                     <p className="text-sm text-text-secondary mb-3">
-                      Join this circle by locking 1 round worth of collateral ({formatEth(contribution, 3)}). Fully refunded upon clean completion.
+                      Join this circle by locking 1 round worth of collateral ({formatMst(contribution, 3)}). Fully refunded upon clean completion.
                     </p>
                     <button
                       onClick={() => setActionSheetType('join')}
                       disabled={isPending || isTxWaiting || membersList.length >= maxMembers}
                       className="btn btn-primary w-full text-base py-3"
                     >
-                      {membersList.length >= maxMembers ? 'Circle Full' : `Join Circle (Lock ${formatEth(contribution, 3)})`}
+                      {membersList.length >= maxMembers ? 'Circle Full' : `Join Circle (Lock ${formatMst(contribution, 3)})`}
                     </button>
                   </div>
                 ) : (
@@ -945,7 +945,7 @@ function CircleDetailContent() {
                       disabled={isPending || isTxWaiting}
                       className="btn btn-primary w-full text-base py-3 shadow-hard-md"
                     >
-                      ⚡ Pay Round {currentRound} Deposit ({formatEth(contribution, 3)})
+                      ⚡ Pay Round {currentRound} Deposit ({formatMst(contribution, 3)})
                     </button>
                   </div>
                 )}
@@ -1036,7 +1036,7 @@ function CircleDetailContent() {
                         {m.paidThisRound ? 'PAID' : 'DUE'}
                       </span>
                     )}
-                    <span className="font-bold text-text-secondary">{formatEth(m.collateral || contribution, 3)}</span>
+                    <span className="font-bold text-text-secondary">{formatMst(m.collateral || contribution, 3)}</span>
                   </div>
                 </div>
               ))
@@ -1072,7 +1072,7 @@ function CircleDetailContent() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold text-sm block text-text-primary">{formatEth(currentPot, 3)}</span>
+                    <span className="font-bold text-sm block text-text-primary">{formatMst(currentPot, 3)}</span>
                     <span className="text-[10px] text-text-muted">Claimed / Credited</span>
                   </div>
                 </div>

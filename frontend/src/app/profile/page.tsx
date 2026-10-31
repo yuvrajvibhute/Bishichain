@@ -1,11 +1,11 @@
 'use client';
 
 import { useAccount, useReadContracts } from 'wagmi';
-import { DirectSepoliaConnect } from '@/components/DirectSepoliaConnect';
+import { DirectBridgeKeyConnect } from '@/components/DirectMstConnect';
 import { motion } from 'framer-motion';
 import { trustSbtAbi, TRUST_SBT_ADDRESS } from '@/contracts';
 import { TrustCard } from '@/components/TrustCard';
-import { shortAddr, etherscanAddr } from '@/lib/utils';
+import { shortAddr, mstscanAddr } from '@/lib/utils';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -70,18 +70,18 @@ export default function ProfilePage() {
             Aapka Trust Score & SBT Card
           </h1>
           <p className="text-sm text-text-secondary mt-1 font-ui max-w-xl">
-            A non-transferable, soulbound ERC-721 token living on Sepolia. Your on-time payment track record proves creditworthiness across Web3.
+            A non-transferable, soulbound ERC-721 token living on MST Blockchain. Your on-time payment track record proves creditworthiness across Web3.
           </p>
         </div>
 
         {isConnected && userAddress && (
           <a
-            href={etherscanAddr(userAddress)}
+            href={mstscanAddr(userAddress)}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-surface border-2 border-border shadow-hard-sm font-mono text-xs font-bold hover:bg-surface-hover text-text-primary transition-all"
           >
-            {shortAddr(userAddress)} on Etherscan ↗
+            {shortAddr(userAddress)} on MSTScan ↗
           </a>
         )}
       </div>
@@ -91,10 +91,10 @@ export default function ProfilePage() {
           <div className="text-4xl mb-4">🔐</div>
           <h2 className="font-display text-2xl font-bold text-text-primary mb-2">Connect Your Wallet</h2>
           <p className="text-sm text-text-secondary mb-6">
-            Connect your Sepolia wallet to view your soulbound Trust Score NFT and chit-fund credit history.
+            Connect your MST wallet to view your soulbound Trust Score NFT and chit-fund credit history.
           </p>
           <div className="flex justify-center">
-            <DirectSepoliaConnect />
+            <DirectBridgeKeyConnect />
           </div>
         </div>
       ) : (
@@ -192,7 +192,7 @@ export default function ProfilePage() {
                 Browse Active Circles
               </Link>
               <a
-                href={TRUST_SBT_ADDRESS ? etherscanAddr(TRUST_SBT_ADDRESS) : '#'}
+                href={TRUST_SBT_ADDRESS ? mstscanAddr(TRUST_SBT_ADDRESS) : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline font-mono text-xs"

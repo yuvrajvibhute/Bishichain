@@ -1,38 +1,27 @@
-#!/usr/bin/env bash
-# deploy.sh — Deploys Bhishi.eth to Sepolia, verifies on Etherscan,
-#             and writes addresses to ../frontend/.env.local
-#
-# Usage:
-#   1. cp .env.example .env
-#   2. Fill in SEPOLIA_RPC_URL, PRIVATE_KEY, ETHERSCAN_API_KEY
-#   3. chmod +x deploy.sh && ./deploy.sh
 
 set -euo pipefail
 
 # ── Load env ─────────────────────────────────────────────────────────────────
 if [ ! -f .env ]; then
-  echo "ERROR: .env file not found. Copy .env.example and fill in your keys."
+  echo "ERROR: .env file not found. Set PRIVATE_KEY in .env (MST_TESTNET_RPC_URL is optional)."
   exit 1
 fi
 source .env
 
 # Validate required env vars
-: "${SEPOLIA_RPC_URL:?Need to set SEPOLIA_RPC_URL}"
+: "${MST_TESTNET_RPC_URL:=https://testnetrpc.mstblockchain.com}"
 : "${PRIVATE_KEY:?Need to set PRIVATE_KEY}"
-: "${ETHERSCAN_API_KEY:?Need to set ETHERSCAN_API_KEY}"
 
-echo "=== Bhishi.eth Deployment ==="
-echo "Network: Sepolia"
+echo "=== Bhishi.mst Deployment ==="
+echo "Network: MST Testnet"
 echo ""
 
 # ── Deploy ────────────────────────────────────────────────────────────────────
 echo ">>> Deploying contracts..."
 OUTPUT=$(forge script script/Deploy.s.sol \
-  --rpc-url "$SEPOLIA_RPC_URL" \
+  --rpc-url "$MST_TESTNET_RPC_URL" \
   --private-key "$PRIVATE_KEY" \
   --broadcast \
-  --verify \
-  --etherscan-api-key "$ETHERSCAN_API_KEY" \
   -vvv 2>&1)
 
 echo "$OUTPUT"
@@ -57,10 +46,10 @@ FRONTEND_ENV="../frontend/.env.local"
 mkdir -p "$(dirname "$FRONTEND_ENV")"
 
 cat > "$FRONTEND_ENV" <<EOF
-NEXT_PUBLIC_CHAIN_ID=11155111
+NEXT_PUBLIC_CHAIN_ID=91562037
 NEXT_PUBLIC_CIRCLE_FACTORY=$FACTORY_ADDR
 NEXT_PUBLIC_TRUST_SBT=$SBT_ADDR
-NEXT_PUBLIC_ETHERSCAN_BASE=https://sepolia.etherscan.io
+NEXT_PUBLIC_EXPLORER_BASE=https://testnet.mstscan.com
 EOF
 
 echo ">>> Wrote addresses to $FRONTEND_ENV"
@@ -86,6 +75,6 @@ contracts.forEach(name => {
 
 echo ""
 echo "=== Deployment complete! ==="
-echo "Sepolia Etherscan:"
-echo "  CircleFactory: https://sepolia.etherscan.io/address/$FACTORY_ADDR"
-echo "  TrustSBT:      https://sepolia.etherscan.io/address/$SBT_ADDR"
+echo "MSTScan:"
+echo "  CircleFactory: https://testnet.mstscan.com/address/$FACTORY_ADDR"
+echo "  TrustSBT:      https://testnet.mstscan.com/address/$SBT_ADDR"

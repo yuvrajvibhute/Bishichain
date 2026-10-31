@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { etherscanTx, shortAddr } from '@/lib/utils';
+import { mstscanTx, shortAddr } from '@/lib/utils';
 
 export interface Toast {
   id: string;
@@ -95,7 +95,7 @@ export function ToastContainer() {
                   )}
                   {t.txHash && (
                     <a
-                      href={etherscanTx(t.txHash)}
+                      href={mstscanTx(t.txHash)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-turmeric font-mono hover:underline mt-1 block"

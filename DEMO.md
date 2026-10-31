@@ -1,4 +1,4 @@
-# Bhishi.eth — Hackathon Demo Guide 🎙️
+# Bhishi.mst — Hackathon Demo Guide 🎙️
 
 Welcome judges and evaluators! This guide walks you through every feature and user journey of **Bhishi** on MST Blockchain Testnet.
 
@@ -25,7 +25,7 @@ Welcome judges and evaluators! This guide walks you through every feature and us
 1. Connect your wallet using the **BridgeKey** button in the top right. Make sure your network is set to **MST Testnet**.
 2. **Filter Tabs**: Browse `All`, `Open (Joining)`, `Active (Running)`, or `Demo Simulation`.
 3. Click **"➕ Nayi Bhishi Banayein"** to trigger the **Conversational Stepper**:
-   - **Step 1**: Choose contribution amount (e.g. `0.005 ETH`, `0.01 ETH`, or custom).
+   - **Step 1**: Choose contribution amount (e.g. `0.005 tMSTC`, `0.01 tMSTC`, or custom).
    - **Step 2**: Select number of members (2 to 10). Notice the live pot preview updating automatically!
    - **Step 3**: Select round duration (`2 Minutes Demo` for fast testing, 1 Hour, 1 Day, or 1 Week).
    - Click **"🚀 Create Circle (Shuru Karein)"** and confirm the transaction in your wallet.
@@ -34,7 +34,7 @@ Welcome judges and evaluators! This guide walks you through every feature and us
 
 ## 🎯 3. The Living Ring Arena (`/circle/[address]`)
 
-Click into any circle (or a demo circle) to experience the centerpiece of Bhishi.eth:
+Click into any circle (or a demo circle) to experience the centerpiece of Bhishi.mst:
 
 ### Features to Inspect:
 - **Interactive SVG Living Circle**:
@@ -78,4 +78,3 @@ All 28 tests will execute in milliseconds verifying happy path, default slashing
 - **Deployment Tx Hash:** [`0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58`](https://testnet.mstscan.com/tx/0x2d45bc2108cf9bd318e282da8d89ece4f4d869e24d015b9a61a15bcf79679e58)
 - **CircleFactory Contract:** [`0xf8a27c259a8912f17468b0bb15de371a25d9caab`](https://testnet.mstscan.com/address/0xf8a27c259a8912f17468b0bb15de371a25d9caab)
 - **TrustSBT Contract:** [`0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a`](https://testnet.mstscan.com/address/0x62756310a85a87ea9e8b3abfc10fc4dbccc5c35a)
-

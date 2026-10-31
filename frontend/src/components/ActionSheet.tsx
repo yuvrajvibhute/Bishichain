@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatEth, etherscanTx } from '@/lib/utils';
+import { formatMst, mstscanTx } from '@/lib/utils';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toasts } from './ToastContainer';
 import { useEffect, useRef } from 'react';
@@ -64,7 +64,7 @@ export function ActionSheet({
                 style={{ background: 'var(--color-turmeric)', color: '#111827', boxShadow: 'var(--shadow-hard-sm)' }}
               >
                 <p className="text-xs font-bold opacity-75 uppercase tracking-wider mb-1" style={{ color: '#111827' }}>Amount</p>
-                <p className="font-mono text-2xl font-black tabular" style={{ color: '#111827' }}>{formatEth(amount)}</p>
+                <p className="font-mono text-2xl font-black tabular" style={{ color: '#111827' }}>{formatMst(amount)}</p>
               </div>
             )}
 

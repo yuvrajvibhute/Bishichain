@@ -53,7 +53,7 @@ contract CircleFactory {
     // ─────────────────────────────────────────────────────────────────────────
 
     /// @notice Deploys a new Circle and authorizes it on the TrustSBT.
-    /// @param contribution  Exact ETH each member pays per round (wei).
+    /// @param contribution  Exact native-token amount each member pays per round (wei).
     /// @param maxMembers    Number of members (2–10).
     /// @param roundDuration Seconds per round.
     /// @return circle Address of the new Circle contract.

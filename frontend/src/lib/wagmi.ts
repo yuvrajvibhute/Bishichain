@@ -47,10 +47,6 @@ export const mstMainnet = defineChain({
   testnet: false,
 });
 
-// Alias for backwards-compatibility
-export const SEPOLIA_CHAIN_ID = MST_TESTNET_CHAIN_ID;
-export const SEPOLIA_RPC = MST_TESTNET_RPC;
-
 export const config = getDefaultConfig({
   appName: 'Bhishi - MST',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'b56e18d47c72ab683b10814fe9495694',
