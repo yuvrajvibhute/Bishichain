@@ -1,7 +1,7 @@
 # Bhishi (बीशी) — Trustless Chit-Fund Committees on MST Blockchain
 
 > **"Panchayat on chain. Bachat bina organizer."**  
-> Replace WhatsApp chaos and runaway organizers with trustless smart contracts on MST Blockchain Testnet. Build verifiable on-chain financial reputation through soulbound Trust Score NFTs.
+> Replace WhatsApp chaos and runaway organizers with trustless smart contracts on MST Blockchain. Build verifiable on-chain financial reputation through soulbound Trust Score NFTs.
 
 ---
 
@@ -18,6 +18,20 @@ Traditional chit funds suffer from two fatal vulnerabilities:
 - 🔒 **Collateral Escrow & Slashing**: Members lock 1x round contribution upfront as collateral. If a member misses a deadline, their collateral is slashed to fill the pot, and a default is permanently recorded.
 - ⏳ **30% Early-Winner Holdback**: When early winners claim, 30% of their winnings is held in trust until the entire circle finishes, disincentivizing ghosting.
 - 💎 **Soulbound Trust Score NFT (`TrustSBT`)**: Non-transferable ERC-721 token that computes your portable reputation directly on-chain (+10 pts per on-time payment, +50 pts per completed circle, -50 pts per default).
+
+---
+
+## 📜 Deployment Details (MST Mainnet)
+
+* **Network Name:** MST Mainnet
+* **Chain ID:** `4646` (`0x1226`)
+* **RPC URL:** `https://mariorpc.mstblockchain.com`
+* **Native Token:** `MSTC`
+* **Block Explorer:** [https://mstscan.com/](https://mstscan.com/)
+* **Deployment Transaction Hash:** [`0x75cb56fda777d56f198c9904497d8a6e0d6c7ab3e0be07e8e03ae07fe8199573`](https://mstscan.com/tx/0x75cb56fda777d56f198c9904497d8a6e0d6c7ab3e0be07e8e03ae07fe8199573)
+* **CircleFactory Contract:** [`0xb07a242e892be7b6ea9efb6e2ba67cd2b1e3d40b`](https://mstscan.com/address/0xb07a242e892be7b6ea9efb6e2ba67cd2b1e3d40b)
+* **TrustSBT Contract:** [`0xb9c63c246d9d535088a6ed7d4844cf5b0aaab056`](https://mstscan.com/address/0xb9c63c246d9d535088a6ed7d4844cf5b0aaab056)
+* **Supported Wallet:** **BridgeKey Wallet** (Native MST Blockchain Web3 Wallet)
 
 ---
 
@@ -123,6 +137,16 @@ All 28 unit and fuzz tests pass:
 - ✅ **Reentrancy Protection**: ReentrancyGuard on `claim()` pull-payment
 - ✅ **Soulbound Enforced**: `TrustSBT._update` blocks all transfers and approvals
 - ✅ **Holdback Release**: 30% withheld from early winners is securely released at circle completion
+
+---
+
+## 📜 Verified Contracts (MST Mainnet)
+
+| Contract | Address | Description |
+|---|---|---|
+| `CircleFactory.sol` | [`0xb07a242e892be7b6ea9efb6e2ba67cd2b1e3d40b`](https://mstscan.com/address/0xb07a242e892be7b6ea9efb6e2ba67cd2b1e3d40b) | Circle deployer & master registry |
+| `TrustSBT.sol` | [`0xb9c63c246d9d535088a6ed7d4844cf5b0aaab056`](https://mstscan.com/address/0xb9c63c246d9d535088a6ed7d4844cf5b0aaab056) | Soulbound NFT with on-chain SVG generation |
+| `Circle.sol` | *Spawned dynamically by factory* | Core escrow, round timer, prevrandao PRNG draw |
 
 ---
 
