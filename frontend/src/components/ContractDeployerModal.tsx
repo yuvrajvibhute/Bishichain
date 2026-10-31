@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAccount, useConnect } from 'wagmi';
 import { CIRCLE_FACTORY_BYTECODE } from '@/contracts/bytecode';
-import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
 import { toasts } from './ToastContainer';
 import { Confetti } from './Confetti';
 import { shortAddr, mstscanAddr, mstscanTx } from '@/lib/utils';
-import { connectDirectMst, getBridgeKeyProvider } from '@/lib/wallet';
+import { connectDirectMst, getBridgeKeyProvider, getMstTargetChainId, MST_NETWORKS } from '@/lib/wallet';
 
 interface Props {
   isOpen: boolean;
@@ -17,8 +16,10 @@ interface Props {
 }
 
 export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
-  const { address: userAddress, isConnected } = useAccount();
+  const { address: userAddress, isConnected, chainId } = useAccount();
   const { connectors, connectAsync } = useConnect();
+  const targetChainId = getMstTargetChainId(chainId);
+  const targetNetwork = MST_NETWORKS[targetChainId];
 
   const [status, setStatus] = useState<'idle' | 'prompting' | 'mining' | 'success' | 'error'>('idle');
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -33,11 +34,11 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
     try {
       setErrorMessage(null);
 
-      // Ensure wallet is connected on MST Testnet
+      // Ensure the wallet and deployment provider are on the selected MST network.
       let activeAddr = userAddress;
-      if (!isConnected || !activeAddr) {
+      if (!isConnected || !activeAddr || chainId !== targetChainId) {
         setStatus('prompting');
-        const connected = await connectDirectMst(MST_TESTNET_CHAIN_ID, connectors, connectAsync);
+        const connected = await connectDirectMst(targetChainId, connectors, connectAsync);
         if (!connected) {
           setStatus('idle');
           return;
@@ -48,6 +49,17 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       const provider = getBridgeKeyProvider();
       if (!provider) {
         throw new Error('BridgeKey Wallet provider not found. Please ensure BridgeKey is installed and unlocked.');
+      }
+
+      const providerChainId = parseInt(await provider.request({ method: 'eth_chainId' }), 16);
+      if (providerChainId !== targetChainId) {
+        setStatus('prompting');
+        const connected = await connectDirectMst(targetChainId, connectors, connectAsync);
+        if (!connected) {
+          setStatus('idle');
+          return;
+        }
+        activeAddr = connected as `0x${string}`;
       }
 
       setStatus('prompting');
@@ -68,7 +80,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       toasts.add({
         type: 'pending',
         title: 'Deployment Submitted! 🚀',
-        message: 'Mining CircleFactory on MST Testnet...',
+        message: `Mining CircleFactory on ${targetNetwork.name}...`,
         txHash: hash,
       });
 
@@ -123,9 +135,9 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       setDeployedSbt(sbtAddress);
 
       // Save locally to localStorage so app instantly uses it
-      localStorage.setItem('bhishi_deployed_factory', contractAddress);
+      localStorage.setItem(`bhishi_deployed_factory_${targetChainId}`, contractAddress);
       if (sbtAddress) {
-        localStorage.setItem('bhishi_deployed_trust_sbt', sbtAddress);
+        localStorage.setItem(`bhishi_deployed_trust_sbt_${targetChainId}`, sbtAddress);
       }
 
       // Persist to .env.local via Next.js backend API
@@ -136,6 +148,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
           body: JSON.stringify({
             factoryAddress: contractAddress,
             trustSbtAddress: sbtAddress,
+            chainId: targetChainId,
           }),
         });
       } catch (saveErr) {
@@ -147,7 +160,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
 
       toasts.add({
         type: 'success',
-        title: 'Contracts Deployed to MST Testnet! 🎉',
+        title: `Contracts Deployed to ${targetNetwork.name}! 🎉`,
         message: `CircleFactory is live at ${shortAddr(contractAddress)}`,
         txHash: hash,
       });
@@ -155,12 +168,13 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
       if (onSuccess) {
         onSuccess(contractAddress, sbtAddress);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Deployment error:', err);
       setStatus('error');
-      const msg = err.message?.includes('User rejected')
+      const errorText = err instanceof Error ? err.message : 'Unknown deployment error.';
+      const msg = errorText.includes('User rejected')
         ? 'Deployment cancelled in BridgeKey.'
-        : err.message || 'Deployment failed. Check your MST testnet tMSTC balance.';
+        : errorText || `Deployment failed. Check your ${targetNetwork.currencySymbol} balance.`;
       setErrorMessage(msg);
       toasts.add({
         type: 'error',
@@ -195,17 +209,17 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
         </div>
 
         <h2 className="font-display text-2xl font-bold text-text-primary mb-2">
-          Deploy Bhishi Contracts to MST Testnet
+          Deploy Bhishi Contracts to {targetNetwork.name}
         </h2>
         <p className="text-xs text-text-secondary mb-6 font-ui">
-          Deploys the smart contract core (<strong>CircleFactory</strong> + <strong>TrustSBT Soulbound NFT</strong>) directly to MST Testnet with your connected BridgeKey wallet. No private keys required.
+          Deploys the smart contract core (<strong>CircleFactory</strong> + <strong>TrustSBT Soulbound NFT</strong>) directly to {targetNetwork.name} with your connected BridgeKey wallet. No private keys required.
         </p>
 
         {/* Specs Table */}
         <div className="p-4 bg-surface-hover border-2 border-border space-y-2 font-mono text-xs mb-6 rounded">
           <div className="flex justify-between">
             <span className="text-text-muted">Target Network:</span>
-            <span className="font-bold text-text-primary">MST Testnet ({MST_TESTNET_CHAIN_ID})</span>
+            <span className="font-bold text-text-primary">{targetNetwork.name} ({targetChainId})</span>
           </div>
           <div className="flex justify-between">
             <span className="text-text-muted">Deployer Account:</span>
@@ -217,7 +231,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
           </div>
           <div className="flex justify-between">
             <span className="text-text-muted">Estimated Gas:</span>
-            <span className="font-bold text-tulsi">~0.015 - 0.025 tMSTC</span>
+            <span className="font-bold text-tulsi">~0.015 - 0.025 {targetNetwork.currencySymbol}</span>
           </div>
         </div>
 
@@ -232,11 +246,11 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
           <div className="p-4 bg-marigold/15 border-2 border-marigold text-center font-mono text-xs rounded mb-4 space-y-2">
             <div className="flex items-center justify-center gap-2 font-bold text-marigold">
               <span className="animate-spin">⏳</span>
-              <span>Mining contract on MST Testnet...</span>
+              <span>Mining contract on {targetNetwork.name}...</span>
             </div>
             {txHash && (
               <a
-                href={mstscanTx(txHash)}
+                href={mstscanTx(txHash, targetChainId)}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-block text-xs text-text-primary underline hover:text-turmeric"
@@ -257,7 +271,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
               <div>
                 <span className="text-text-muted block text-[11px]">CircleFactory:</span>
                 <a
-                  href={mstscanAddr(deployedFactory)}
+                  href={mstscanAddr(deployedFactory, targetChainId)}
                   target="_blank"
                   rel="noreferrer"
                   className="font-bold text-text-primary underline hover:text-turmeric"
@@ -269,7 +283,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
                 <div>
                   <span className="text-text-muted block text-[11px]">TrustSBT:</span>
                   <a
-                    href={mstscanAddr(deployedSbt)}
+                    href={mstscanAddr(deployedSbt, targetChainId)}
                     target="_blank"
                     rel="noreferrer"
                     className="font-bold text-text-primary underline hover:text-turmeric"
@@ -314,7 +328,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
                 {status === 'prompting'
                   ? 'Confirming in Wallet...'
                   : status === 'mining'
-                  ? 'Deploying on MST Testnet...'
+                  ? `Deploying on ${targetNetwork.name}...`
                   : 'Confirm & Deploy with BridgeKey'}
               </span>
             </button>

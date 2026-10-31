@@ -3,13 +3,17 @@
 import { useAccount, useReadContracts } from 'wagmi';
 import { DirectBridgeKeyConnect } from '@/components/DirectMstConnect';
 import { motion } from 'framer-motion';
-import { trustSbtAbi, TRUST_SBT_ADDRESS } from '@/contracts';
+import { trustSbtAbi } from '@/contracts';
+import { getTrustSbtAddress } from '@/contracts/network';
 import { TrustCard } from '@/components/TrustCard';
 import { shortAddr, mstscanAddr } from '@/lib/utils';
 import Link from 'next/link';
+import { getMstTargetChainId } from '@/lib/wallet';
 
 export default function ProfilePage() {
-  const { address: userAddress, isConnected } = useAccount();
+  const { address: userAddress, isConnected, chainId } = useAccount();
+  const targetChainId = getMstTargetChainId(chainId);
+  const trustSbtAddress = getTrustSbtAddress(targetChainId);
 
   // Convert address to uint256 tokenId (same as in TrustSBT.sol: uint256(uint160(owner)))
   const tokenId = userAddress ? BigInt(userAddress) : 0n;
@@ -17,22 +21,25 @@ export default function ProfilePage() {
   const { data, isLoading } = useReadContracts({
     contracts: [
       {
-        address: TRUST_SBT_ADDRESS,
+        address: trustSbtAddress,
         abi: trustSbtAbi,
         functionName: 'score',
         args: [userAddress || '0x0000000000000000000000000000000000000000'],
+        chainId: targetChainId,
       },
       {
-        address: TRUST_SBT_ADDRESS,
+        address: trustSbtAddress,
         abi: trustSbtAbi,
         functionName: 'getRecord',
         args: [userAddress || '0x0000000000000000000000000000000000000000'],
+        chainId: targetChainId,
       },
       {
-        address: TRUST_SBT_ADDRESS,
+        address: trustSbtAddress,
         abi: trustSbtAbi,
         functionName: 'tokenURI',
         args: [tokenId],
+        chainId: targetChainId,
       },
     ],
   });
@@ -76,7 +83,7 @@ export default function ProfilePage() {
 
         {isConnected && userAddress && (
           <a
-            href={mstscanAddr(userAddress)}
+            href={mstscanAddr(userAddress, targetChainId)}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-surface border-2 border-border shadow-hard-sm font-mono text-xs font-bold hover:bg-surface-hover text-text-primary transition-all"
@@ -192,7 +199,7 @@ export default function ProfilePage() {
                 Browse Active Circles
               </Link>
               <a
-                href={TRUST_SBT_ADDRESS ? mstscanAddr(TRUST_SBT_ADDRESS) : '#'}
+                href={trustSbtAddress ? mstscanAddr(trustSbtAddress, targetChainId) : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline font-mono text-xs"

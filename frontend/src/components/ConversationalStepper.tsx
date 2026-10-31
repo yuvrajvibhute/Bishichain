@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { parseEther } from 'viem';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { circleFactoryAbi, CIRCLE_FACTORY_ADDRESS, getFactoryAddress } from '@/contracts';
+import { circleFactoryAbi } from '@/contracts';
+import { getFactoryAddress } from '@/contracts/network';
 import { toasts } from './ToastContainer';
 import { useRouter } from 'next/navigation';
 import { saveCustomCircle, getBridgeKeyProvider } from '@/lib/wallet';
 import { MST_MAINNET_CHAIN_ID } from '@/lib/wagmi';
+import { getMstTargetChainId } from '@/lib/wallet';
 
 interface Props {
   isOpen: boolean;
@@ -35,6 +37,8 @@ const PRESET_DURATIONS = [
 export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
   const router = useRouter();
   const { address: userAddress, isConnected, chainId } = useAccount();
+  const targetChainId = getMstTargetChainId(chainId);
+  const targetNetworkName = targetChainId === MST_MAINNET_CHAIN_ID ? 'MST Mainnet' : 'MST Testnet';
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [contribution, setContribution] = useState<string>('0.01');
   const [customContribution, setCustomContribution] = useState<string>('');
@@ -51,7 +55,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
         toasts.add({
           type: 'pending',
           title: 'Creating Circle...',
-          message: 'Deploying your Bhishi smart contract to MST Testnet',
+          message: `Deploying your Bhishi smart contract to ${targetNetworkName}`,
           txHash: hash,
         });
       },
@@ -85,18 +89,28 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
       }
 
       // If a factory is configured and the wallet is connected, broadcast on-chain.
-      const activeFactory = getFactoryAddress();
+      const activeFactory = getFactoryAddress(targetChainId);
       if (activeFactory && isConnected) {
         writeContract({
           address: activeFactory,
           abi: circleFactoryAbi,
           functionName: 'createCircle',
           args: [amountWei, members, BigInt(duration)],
+          chainId: targetChainId,
         });
         return;
       }
 
-      // Trigger BridgeKey confirmation transaction so it records on MST Testnet in the user's wallet
+      if (targetChainId === MST_MAINNET_CHAIN_ID && isConnected) {
+        toasts.add({
+          type: 'error',
+          title: 'Mainnet Contracts Not Deployed',
+          message: 'Deploy the Bhishi contracts to MST Mainnet before creating an on-chain circle.',
+        });
+        return;
+      }
+
+      // Trigger a BridgeKey confirmation transaction on the selected network.
       setIsSimulating(true);
       let txHash = '';
       const provider = getBridgeKeyProvider();
@@ -140,7 +154,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
       onClose();
       toasts.add({
         type: 'success',
-        title: 'Bhishi Circle Created on MST Testnet! 🚀',
+        title: `Bhishi Circle Created on ${targetNetworkName}! 🚀`,
         message: `Your new circle is live at ${newAddress.slice(0, 8)}...`,
         txHash: txHash || undefined,
       });
@@ -385,7 +399,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
                   disabled={isPending || isWaiting || isSimulating}
                   className="btn btn-primary shadow-hard-md"
                 >
-                  {isSimulating ? 'Deploying to MST Testnet...' : isPending ? 'Confirming in Wallet...' : isWaiting ? 'Mining Transaction...' : '🚀 Create Circle (Shuru Karein)'}
+                  {isSimulating ? `Deploying to ${targetNetworkName}...` : isPending ? 'Confirming in Wallet...' : isWaiting ? 'Mining Transaction...' : '🚀 Create Circle (Shuru Karein)'}
                 </button>
               </div>
             </motion.div>
