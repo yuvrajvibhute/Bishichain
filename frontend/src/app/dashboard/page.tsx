@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAccount, useReadContract } from 'wagmi';
-import { circleFactoryAbi, CIRCLE_FACTORY_ADDRESS, trustSbtAbi, TRUST_SBT_ADDRESS, getFactoryAddress, getTrustSbtAddress } from '@/contracts';
+import { circleFactoryAbi, trustSbtAbi } from '@/contracts';
+import { getFactoryAddress, getTrustSbtAddress } from '@/contracts/network';
 import { CircleCardWrapper } from '@/components/CircleCardWrapper';
 import { ConversationalStepper } from '@/components/ConversationalStepper';
 import { ContractDeployerModal } from '@/components/ContractDeployerModal';
 import { PassbookCard } from '@/components/PassbookCard';
 import { parseEther } from 'viem';
-import { getCustomCircles, CustomCircleData } from '@/lib/wallet';
+import { getCustomCircles, CustomCircleData, getMstTargetChainId } from '@/lib/wallet';
+import { MST_MAINNET_CHAIN_ID } from '@/lib/wagmi';
 
 // Sample demo circles for preview if factory not deployed or no circles exist yet
 const DEMO_CIRCLES = [
@@ -46,26 +48,27 @@ const DEMO_CIRCLES = [
 ];
 
 export default function DashboardPage() {
-  const { address: userAddress, isConnected } = useAccount();
+  const { address: userAddress, isConnected, chainId } = useAccount();
+  const targetChainId = getMstTargetChainId(chainId);
+  const targetNetworkName = targetChainId === MST_MAINNET_CHAIN_ID ? 'MST Mainnet' : 'MST Testnet';
   const [filter, setFilter] = useState<'all' | 'open' | 'active' | 'demo'>('all');
   const [isStepperOpen, setIsStepperOpen] = useState(false);
   const [isDeployerOpen, setIsDeployerOpen] = useState(false);
   const [customCircles, setCustomCircles] = useState<CustomCircleData[]>([]);
 
-  const [factoryAddr, setFactoryAddr] = useState<`0x${string}`>(CIRCLE_FACTORY_ADDRESS);
-  const [sbtAddr, setSbtAddr] = useState<`0x${string}`>(TRUST_SBT_ADDRESS);
-
   useEffect(() => {
     setCustomCircles(getCustomCircles());
-    setFactoryAddr(getFactoryAddress());
-    setSbtAddr(getTrustSbtAddress());
   }, [isStepperOpen, isDeployerOpen]);
+
+  const factoryAddr = getFactoryAddress(targetChainId);
+  const sbtAddr = getTrustSbtAddress(targetChainId);
 
   // Read all circles from factory
   const { data: allCircles, isLoading, refetch } = useReadContract({
     address: factoryAddr,
     abi: circleFactoryAbi,
     functionName: 'getAllCircles',
+    chainId: targetChainId,
   });
 
   // Read user trust score
@@ -74,6 +77,7 @@ export default function DashboardPage() {
     abi: trustSbtAbi,
     functionName: 'score',
     args: [userAddress || '0x0000000000000000000000000000000000000000'],
+    chainId: targetChainId,
   });
 
   const circleList = (allCircles as `0x${string}`[]) || [];
@@ -126,10 +130,10 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsDeployerOpen(true)}
             className="btn btn-secondary flex items-center gap-2 shadow-hard-md"
-            title="Deploy Bhishi Contracts directly to MST Testnet with your BridgeKey wallet"
+            title={`Deploy Bhishi Contracts directly to ${targetNetworkName} with your BridgeKey wallet`}
           >
             <span>🚀</span>
-            <span>Deploy to MST Testnet</span>
+            <span>Deploy to {targetNetworkName}</span>
           </button>
 
           <button
@@ -179,7 +183,7 @@ export default function DashboardPage() {
               <div>
                 <p className="font-bold text-sm text-text-primary">💡 Showing Demo Simulation Circles</p>
                 <p className="text-xs text-text-secondary mt-0.5">
-                  Deploy Bhishi smart contracts directly to MST Testnet using your BridgeKey wallet with 1-click!
+                  Deploy Bhishi smart contracts directly to {targetNetworkName} using your BridgeKey wallet with 1-click!
                 </p>
               </div>
               <div className="flex items-center gap-2">

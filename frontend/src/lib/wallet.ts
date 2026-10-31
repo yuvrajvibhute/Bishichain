@@ -44,6 +44,11 @@ export const MST_NETWORKS: Record<number, MstNetworkConfig> = {
   },
 };
 
+export function getMstTargetChainId(chainId?: number): number {
+  if (chainId && MST_NETWORKS[chainId]) return chainId;
+  return MST_TESTNET_CHAIN_ID;
+}
+
 export async function switchMstNetwork(
   targetChainId: number,
   requestSwitch: () => Promise<unknown>

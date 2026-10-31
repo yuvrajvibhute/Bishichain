@@ -12,8 +12,8 @@ import { toasts } from '@/components/ToastContainer';
 import { ActionSheet } from '@/components/ActionSheet';
 import { Confetti } from '@/components/Confetti';
 import { formatMst, shortAddr, mstscanAddr, circleStateName, addrColor } from '@/lib/utils';
-import { isDemoAddress, getCircleLocalState, setCircleLocalState, connectDirectMst, getBridgeKeyProvider } from '@/lib/wallet';
-import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
+import { isDemoAddress, getCircleLocalState, setCircleLocalState, connectDirectMst, getBridgeKeyProvider, getMstTargetChainId, MST_NETWORKS } from '@/lib/wallet';
+import { MST_MAINNET_CHAIN_ID } from '@/lib/wagmi';
 
 // Default mock profiles for hackathon demo circles
 const DEMO_PRESETS: Record<string, any> = {
@@ -167,7 +167,9 @@ function CircleDetailContent() {
   const params = useParams();
   const router = useRouter();
   const circleAddress = ((params?.address as string) || '') as `0x${string}`;
-  const { address: userAddress, isConnected } = useAccount();
+  const { address: userAddress, isConnected, chainId } = useAccount();
+  const targetChainId = getMstTargetChainId(chainId);
+  const targetNetwork = MST_NETWORKS[targetChainId];
   const { connectors, connectAsync } = useConnect();
 
   // Local simulated seconds countdown for smooth timer
@@ -184,28 +186,30 @@ function CircleDetailContent() {
     contracts: isDemo
       ? []
       : [
-          { address: circleAddress, abi: circleAbi, functionName: 'contribution' },
-          { address: circleAddress, abi: circleAbi, functionName: 'maxMembers' },
-          { address: circleAddress, abi: circleAbi, functionName: 'roundDuration' },
-          { address: circleAddress, abi: circleAbi, functionName: 'currentRound' },
-          { address: circleAddress, abi: circleAbi, functionName: 'totalRounds' },
-          { address: circleAddress, abi: circleAbi, functionName: 'roundDeadline' },
-          { address: circleAddress, abi: circleAbi, functionName: 'secondsToDeadline' },
-          { address: circleAddress, abi: circleAbi, functionName: 'state' },
-          { address: circleAddress, abi: circleAbi, functionName: 'creator' },
-          { address: circleAddress, abi: circleAbi, functionName: 'getMembers' },
-          { address: circleAddress, abi: circleAbi, functionName: 'getWinnerHistory' },
+          { address: circleAddress, abi: circleAbi, functionName: 'contribution', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'maxMembers', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'roundDuration', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'currentRound', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'totalRounds', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'roundDeadline', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'secondsToDeadline', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'state', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'creator', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'getMembers', chainId: targetChainId },
+          { address: circleAddress, abi: circleAbi, functionName: 'getWinnerHistory', chainId: targetChainId },
           {
             address: circleAddress,
             abi: circleAbi,
             functionName: 'memberInfo',
             args: [userAddress || '0x0000000000000000000000000000000000000000'],
+            chainId: targetChainId,
           },
           {
             address: circleAddress,
             abi: circleAbi,
             functionName: 'claimable',
             args: [userAddress || '0x0000000000000000000000000000000000000000'],
+            chainId: targetChainId,
           },
         ],
   });
@@ -294,8 +298,9 @@ function CircleDetailContent() {
       abi: circleAbi,
       functionName: 'memberInfo',
       args: [m as `0x${string}`],
+      chainId: targetChainId,
     }));
-  }, [hasOnChainData, circleAddress, memberAddrs]);
+  }, [hasOnChainData, circleAddress, memberAddrs, targetChainId]);
 
   const { data: membersInfoData } = useReadContracts({
     contracts: memberInfoQueries,
@@ -371,7 +376,7 @@ function CircleDetailContent() {
         toasts.add({
           type: 'pending',
           title: 'Transaction Submitted',
-          message: 'Mining on MST Testnet...',
+          message: `Mining on ${targetNetwork.name}...`,
           txHash: hash,
         });
       },
@@ -390,6 +395,7 @@ function CircleDetailContent() {
 
   const { isLoading: isTxWaiting } = useWaitForTransactionReceipt({
     hash: txHash,
+    chainId: targetChainId,
   });
 
   useEffect(() => {
@@ -400,8 +406,17 @@ function CircleDetailContent() {
 
   // Ensure connection helper
   const requireConnection = async (): Promise<boolean> => {
-    if (isConnected) return true;
-    const acc = await connectDirectMst(MST_TESTNET_CHAIN_ID, connectors, connectAsync);
+    if (targetChainId === MST_MAINNET_CHAIN_ID && !hasOnChainData) {
+      toasts.add({
+        type: 'error',
+        title: 'Mainnet Circle Unavailable',
+        message: 'Simulated circles cannot send transactions on MST Mainnet. Create or open a deployed on-chain circle.',
+      });
+      return false;
+    }
+
+    if (isConnected && chainId === targetChainId) return true;
+    const acc = await connectDirectMst(targetChainId, connectors, connectAsync);
     if (!acc) {
       toasts.add({
         type: 'error',
@@ -466,6 +481,7 @@ function CircleDetailContent() {
         abi: circleAbi,
         functionName: 'join',
         value: contribution,
+        chainId: targetChainId,
       });
       return;
     }
@@ -497,7 +513,7 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: 'Collateral Locked in Wallet! 🛡️',
-        message: `Mined on MST Testnet! ${formatMst(contribution, 3)} locked in escrow.`,
+        message: `Mined on ${targetNetwork.name}! ${formatMst(contribution, 3)} locked in escrow.`,
         txHash: txHash,
       });
     } catch (err: any) {
@@ -522,6 +538,7 @@ function CircleDetailContent() {
         address: circleAddress,
         abi: circleAbi,
         functionName: 'start',
+        chainId: targetChainId,
       });
       return;
     }
@@ -538,7 +555,7 @@ function CircleDetailContent() {
       }));
       toasts.add({
         type: 'success',
-        title: 'Circle Started on MST Testnet! 🚀',
+        title: `Circle Started on ${targetNetwork.name}! 🚀`,
         message: 'Round 1 is now active. Members can pool their deposits.',
         txHash: txHash,
       });
@@ -565,6 +582,7 @@ function CircleDetailContent() {
         abi: circleAbi,
         functionName: 'deposit',
         value: contribution,
+        chainId: targetChainId,
       });
       return;
     }
@@ -597,7 +615,7 @@ function CircleDetailContent() {
       toasts.add({
         type: 'success',
         title: `Round ${currentRound} Deposit Confirmed in Wallet! ⚡`,
-        message: `Mined on MST Testnet! ${formatMst(contribution, 3)} deposited. All members have paid! Ready to settle round.`,
+        message: `Mined on ${targetNetwork.name}! ${formatMst(contribution, 3)} deposited. All members have paid! Ready to settle round.`,
         txHash: txHash,
       });
     } catch (err: any) {
@@ -622,6 +640,7 @@ function CircleDetailContent() {
         address: circleAddress,
         abi: circleAbi,
         functionName: 'settleRound',
+        chainId: targetChainId,
       });
       return;
     }
@@ -664,7 +683,7 @@ function CircleDetailContent() {
 
       toasts.add({
         type: 'success',
-        title: `🏆 Winner Drawn on MST Testnet!`,
+        title: `🏆 Winner Drawn on ${targetNetwork.name}!`,
         message: `Pot of ${formatMst(potValue, 3)} awarded to ${shortAddr(chosen.address)}! ${
           isUserWinner ? 'Aap jeete hain! Click Claim to withdraw.' : ''
         }`,
@@ -692,6 +711,7 @@ function CircleDetailContent() {
         address: circleAddress,
         abi: circleAbi,
         functionName: 'claim',
+        chainId: targetChainId,
       });
       return;
     }
@@ -710,7 +730,7 @@ function CircleDetailContent() {
       setConfettiActive(true);
       toasts.add({
         type: 'success',
-        title: 'Winnings Claimed on MST Testnet! 💰',
+        title: `Winnings Claimed on ${targetNetwork.name}! 💰`,
         message: `${formatMst(claimedAmount, 4)} confirmed and recorded in your wallet.`,
         txHash: txHash,
       });
@@ -762,7 +782,7 @@ function CircleDetailContent() {
             {circleStateName(state)}
           </span>
           <a
-            href={mstscanAddr(circleAddress)}
+            href={mstscanAddr(circleAddress, targetChainId)}
             target="_blank"
             rel="noopener noreferrer"
             className="px-2.5 py-1 bg-surface border-2 border-border text-xs font-mono font-bold hover:bg-surface-hover text-text-primary"
