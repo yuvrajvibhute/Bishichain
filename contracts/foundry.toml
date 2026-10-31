@@ -17,6 +17,3 @@ runs = 64
 
 [rpc_endpoints]
 mst_testnet = "https://testnetrpc.mstblockchain.com"
-
-[etherscan]
-sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }

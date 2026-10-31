@@ -6,9 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { circleFactoryAbi, CIRCLE_FACTORY_ADDRESS, getFactoryAddress } from '@/contracts';
 import { toasts } from './ToastContainer';
-import { etherscanTx } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { saveCustomCircle, getBridgeKeyProvider } from '@/lib/wallet';
+import { MST_MAINNET_CHAIN_ID } from '@/lib/wagmi';
 
 interface Props {
   isOpen: boolean;
@@ -17,10 +17,10 @@ interface Props {
 }
 
 const PRESET_AMOUNTS = [
-  { label: '0.005 tMSTC', value: '0.005', desc: 'Chhoti Bachat' },
-  { label: '0.01 tMSTC', value: '0.01', desc: 'Standard' },
-  { label: '0.05 tMSTC', value: '0.05', desc: 'Badi Bachat' },
-  { label: '0.1 tMSTC', value: '0.1', desc: 'High Pot' },
+  { value: '0.005', desc: 'Chhoti Bachat' },
+  { value: '0.01', desc: 'Standard' },
+  { value: '0.05', desc: 'Badi Bachat' },
+  { value: '0.1', desc: 'High Pot' },
 ];
 
 const PRESET_MEMBERS = [3, 4, 5, 8, 10];
@@ -34,7 +34,7 @@ const PRESET_DURATIONS = [
 
 export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
   const router = useRouter();
-  const { address: userAddress, isConnected } = useAccount();
+  const { address: userAddress, isConnected, chainId } = useAccount();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [contribution, setContribution] = useState<string>('0.01');
   const [customContribution, setCustomContribution] = useState<string>('');
@@ -43,6 +43,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
   const [isSimulating, setIsSimulating] = useState(false);
 
   const finalContribution = customContribution ? customContribution : contribution;
+  const currencySymbol = chainId === MST_MAINNET_CHAIN_ID ? 'MSTC' : 'tMSTC';
 
   const { writeContract, data: txHash, isPending } = useWriteContract({
     mutation: {
@@ -83,7 +84,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
         return;
       }
 
-      // If factory is configured on Sepolia and wallet is connected, broadcast on-chain
+      // If a factory is configured and the wallet is connected, broadcast on-chain.
       const activeFactory = getFactoryAddress();
       if (activeFactory && isConnected) {
         writeContract({
@@ -213,14 +214,14 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
                         : 'bg-surface-hover text-text-primary hover:bg-surface'
                     }`}
                   >
-                    <div className="font-bold font-mono">{item.label}</div>
+                    <div className="font-bold font-mono">{item.value} {currencySymbol}</div>
                     <div className="text-xs opacity-70 mt-0.5">{item.desc}</div>
                   </button>
                 ))}
               </div>
 
               <div className="pt-2">
-                <label className="text-xs font-bold block mb-1 font-mono text-text-primary">Custom Contribution (ETH)</label>
+                <label className="text-xs font-bold block mb-1 font-mono text-text-primary">Custom Contribution ({currencySymbol})</label>
                 <input
                   type="number"
                   step="0.001"
@@ -282,7 +283,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
               <div className="p-4 bg-surface-hover border-2 border-border font-mono text-xs space-y-1 mt-4 rounded">
                 <div className="flex justify-between">
                   <span className="text-text-muted">Pot per round:</span>
-                  <span className="font-bold text-text-primary font-mono">{(Number(finalContribution || '0') * members).toFixed(3)} ETH</span>
+                  <span className="font-bold text-text-primary font-mono">{(Number(finalContribution || '0') * members).toFixed(3)} {currencySymbol}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-muted">Total rounds:</span>
@@ -290,7 +291,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-muted">Collateral per person:</span>
-                  <span className="font-bold text-tulsi">{finalContribution} ETH (refundable)</span>
+                  <span className="font-bold text-tulsi">{finalContribution} {currencySymbol} (refundable)</span>
                 </div>
               </div>
 
@@ -357,7 +358,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
                 <div className="font-bold text-marigold uppercase tracking-wider mb-2">Circle Confirmation</div>
                 <div className="flex justify-between">
                   <span className="text-text-muted">Contribution:</span>
-                  <span className="font-bold text-text-primary">{finalContribution} ETH / round</span>
+                  <span className="font-bold text-text-primary">{finalContribution} {currencySymbol} / round</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-muted">Total Members:</span>
@@ -365,7 +366,7 @@ export function ConversationalStepper({ isOpen, onClose, onCreated }: Props) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-muted">Grand Pot (Each Round):</span>
-                  <span className="font-bold text-base text-text-primary">{potSize.toFixed(4)} ETH</span>
+                  <span className="font-bold text-base text-text-primary">{potSize.toFixed(4)} {currencySymbol}</span>
                 </div>
               </div>
 

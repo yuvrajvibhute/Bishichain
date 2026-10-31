@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { DirectSepoliaConnect } from './DirectSepoliaConnect';
+import { DirectBridgeKeyConnect } from './DirectMstConnect';
 import { useChainId } from 'wagmi';
 import { MST_TESTNET_CHAIN_ID, MST_MAINNET_CHAIN_ID } from '@/lib/wagmi';
 import { motion } from 'framer-motion';
@@ -42,6 +42,16 @@ export function Navbar() {
         {/* Navigation links */}
         <nav className="hidden md:flex items-center gap-1 lg:gap-2">
           <Link
+            href="/"
+            className={`px-3 py-1.5 rounded-md text-xs font-mono font-bold uppercase tracking-wider transition-all border-2 ${
+              pathname === '/'
+                ? 'bg-turmeric text-ink border-border shadow-hard-sm'
+                : 'text-text-secondary hover:text-text-primary border-transparent hover:border-border/20'
+            }`}
+          >
+            🏠 Home
+          </Link>
+          <Link
             href="/dashboard"
             className={`px-3 py-1.5 rounded-md text-xs font-mono font-bold uppercase tracking-wider transition-all border-2 ${
               pathname === '/dashboard'
@@ -60,12 +70,6 @@ export function Navbar() {
             }`}
           >
             🛡️ Trust SBT
-          </Link>
-          <Link
-            href="/#rules"
-            className="px-3 py-1.5 rounded-md text-xs font-mono font-bold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-all border-2 border-transparent hover:border-border/20"
-          >
-            📖 Rules
           </Link>
         </nav>
 
@@ -103,7 +107,7 @@ export function Navbar() {
           )}
 
           {/* Wallet Connection: Direct 1-click BridgeKey connect */}
-          <DirectSepoliaConnect />
+          <DirectBridgeKeyConnect />
         </div>
       </div>
     </header>

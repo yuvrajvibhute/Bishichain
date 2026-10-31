@@ -51,7 +51,7 @@ export default function LandingPage() {
             transition={{ delay: 0.2 }}
             className="text-base sm:text-xl text-text-secondary max-w-2xl mx-auto mb-8 font-ui leading-relaxed"
           >
-            Replace WhatsApp chaos, disputed spreadsheets, and runaway organizers with trustless smart contracts on Ethereum.
+            Replace WhatsApp chaos, disputed spreadsheets, and runaway organizers with trustless smart contracts on MST Blockchain.
             Lock collateral, automate pot draws via{' '}
             <code className="text-turmeric font-mono px-1.5 py-0.5 rounded bg-surface border border-border text-sm">
               prevrandao
@@ -158,7 +158,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right Card: The Bhishi.eth Guarantee */}
+            {/* Right Card: The Bhishi.mst Guarantee */}
             <div className="card p-6 border-2 border-tulsi bg-surface relative overflow-hidden flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">

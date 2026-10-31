@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAccount, useConnect, useDisconnect, useSwitchChain, useChainId } from 'wagmi';
 import { MST_TESTNET_CHAIN_ID, MST_MAINNET_CHAIN_ID } from '@/lib/wagmi';
-import { shortAddr, etherscanAddr } from '@/lib/utils';
+import { shortAddr, mstscanAddr } from '@/lib/utils';
 import { getBridgeKeyProvider, connectDirectMst, MST_NETWORKS, switchMstNetwork } from '@/lib/wallet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toasts } from './ToastContainer';
@@ -381,7 +381,7 @@ export function DirectBridgeKeyConnect() {
                   {copied ? '✓ Copied!' : '📋 Copy'}
                 </button>
                 <a
-                  href={etherscanAddr(activeAddress || '', currentNetworkConfig.id)}
+                  href={mstscanAddr(activeAddress || '', currentNetworkConfig.id)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 py-1.5 bg-surface hover:bg-surface-hover border border-border rounded text-[11px] font-bold text-text-primary text-center"
@@ -441,4 +441,3 @@ export function DirectBridgeKeyConnect() {
 }
 
 // Backwards-compatible alias
-export const DirectSepoliaConnect = DirectBridgeKeyConnect;

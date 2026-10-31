@@ -7,7 +7,7 @@ import { CIRCLE_FACTORY_BYTECODE } from '@/contracts/bytecode';
 import { MST_TESTNET_CHAIN_ID } from '@/lib/wagmi';
 import { toasts } from './ToastContainer';
 import { Confetti } from './Confetti';
-import { shortAddr, etherscanAddr, etherscanTx } from '@/lib/utils';
+import { shortAddr, mstscanAddr, mstscanTx } from '@/lib/utils';
 import { connectDirectMst, getBridgeKeyProvider } from '@/lib/wallet';
 
 interface Props {
@@ -236,7 +236,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
             </div>
             {txHash && (
               <a
-                href={etherscanTx(txHash)}
+                href={mstscanTx(txHash)}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-block text-xs text-text-primary underline hover:text-turmeric"
@@ -257,7 +257,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
               <div>
                 <span className="text-text-muted block text-[11px]">CircleFactory:</span>
                 <a
-                  href={etherscanAddr(deployedFactory)}
+                  href={mstscanAddr(deployedFactory)}
                   target="_blank"
                   rel="noreferrer"
                   className="font-bold text-text-primary underline hover:text-turmeric"
@@ -269,7 +269,7 @@ export function ContractDeployerModal({ isOpen, onClose, onSuccess }: Props) {
                 <div>
                   <span className="text-text-muted block text-[11px]">TrustSBT:</span>
                   <a
-                    href={etherscanAddr(deployedSbt)}
+                    href={mstscanAddr(deployedSbt)}
                     target="_blank"
                     rel="noreferrer"
                     className="font-bold text-text-primary underline hover:text-turmeric"

@@ -247,6 +247,3 @@ export async function connectDirectMst(
     return null;
   }
 }
-
-// Backwards-compatible alias
-export const connectDirectSepolia = connectDirectMst;

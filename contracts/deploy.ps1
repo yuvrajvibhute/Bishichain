@@ -2,8 +2,7 @@
 
 param(
     [string]$RpcUrl = $env:MST_TESTNET_RPC_URL,
-    [string]$PrivateKey = $env:PRIVATE_KEY,
-    [string]$EtherscanApiKey = $env:ETHERSCAN_API_KEY
+    [string]$PrivateKey = $env:PRIVATE_KEY
 )
 
 if (-not $RpcUrl) {
@@ -22,9 +21,7 @@ if ((-not $PrivateKey) -and (Test-Path ".env")) {
             $key = $matches[1].Trim()
             $val = $matches[2].Trim()
             if ($key -eq "MST_TESTNET_RPC_URL" -and -not $RpcUrl) { $RpcUrl = $val }
-            if ($key -eq "SEPOLIA_RPC_URL" -and -not $RpcUrl) { $RpcUrl = $val }
             if ($key -eq "PRIVATE_KEY" -and -not $PrivateKey) { $PrivateKey = $val }
-            if ($key -eq "ETHERSCAN_API_KEY" -and -not $EtherscanApiKey) { $EtherscanApiKey = $val }
         }
     }
 }
@@ -37,16 +34,10 @@ if (-not $PrivateKey) {
 
 Write-Host "=== Deploying Bhishi to MST Testnet ($RpcUrl) ===" -ForegroundColor Cyan
 
-$verifyArgs = @()
-if ($EtherscanApiKey) {
-    $verifyArgs = @("--verify", "--etherscan-api-key", $EtherscanApiKey)
-}
-
 $deployOutput = & $forgePath script script/Deploy.s.sol `
     --rpc-url $RpcUrl `
     --private-key $PrivateKey `
     --broadcast `
-    @verifyArgs `
     -vvv
 
 $deployOutput | Out-Host
@@ -75,7 +66,7 @@ if ($factoryAddr -and $sbtAddr) {
 NEXT_PUBLIC_CHAIN_ID=91562037
 NEXT_PUBLIC_CIRCLE_FACTORY=$factoryAddr
 NEXT_PUBLIC_TRUST_SBT=$sbtAddr
-NEXT_PUBLIC_ETHERSCAN_BASE=https://testnet.mstscan.com
+NEXT_PUBLIC_EXPLORER_BASE=https://testnet.mstscan.com
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=b56e18d47c72ab683b10814fe9495694
 "@
     Set-Content -Path $frontendEnv -Value $envContent

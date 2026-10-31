@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Bhishi.eth — CircleFactory ABI
+// Bhishi.mst — CircleFactory ABI
 // Auto-generated. Do not edit manually — run contracts/deploy.sh to update.
 // ─────────────────────────────────────────────────────────────────────────────
 

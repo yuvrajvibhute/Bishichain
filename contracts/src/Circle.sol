@@ -75,7 +75,7 @@ contract Circle is ReentrancyGuard {
     // ─────────────────────────────────────────────────────────────────────────
 
     address public immutable creator;
-    uint256 public immutable contribution; // ETH per round per member
+    uint256 public immutable contribution; // Native token per round per member
     uint8   public immutable maxMembers;
     uint64  public immutable roundDuration; // seconds
     TrustSBT public immutable trustSBT;

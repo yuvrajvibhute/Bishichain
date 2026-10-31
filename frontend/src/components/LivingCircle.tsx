@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { addrColor, addrInitials, formatEth, shortAddr } from '@/lib/utils';
+import { addrColor, addrInitials, formatMst, shortAddr } from '@/lib/utils';
 
 interface Member {
   address: string;
@@ -174,7 +174,7 @@ export function LivingCircle({
             fontWeight="800"
             fill="var(--color-ink)"
           >
-            {formatEth(potAmount, 3)}
+            {formatMst(potAmount, 3)}
           </text>
           <text
             x={CENTER}
@@ -388,7 +388,7 @@ export function LivingCircle({
             <div className="text-xs space-y-1">
               <p>🟢 On-time: <strong>{hoveredInfo.onTimeCount}</strong></p>
               <p>🔴 Defaults: <strong>{hoveredInfo.defaultCount}</strong></p>
-              <p>💎 Collateral: <strong className="tabular">{formatEth(hoveredInfo.collateral, 3)}</strong></p>
+              <p>💎 Collateral: <strong className="tabular">{formatMst(hoveredInfo.collateral, 3)}</strong></p>
               {hoveredInfo.hasWon && <p className="text-tulsi font-bold">👑 Won this circle</p>}
               {hoveredInfo.paidThisRound && <p className="text-tulsi font-bold">✓ Paid round {currentRound}</p>}
             </div>

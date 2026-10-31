@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { shortAddr, formatEth, circleStateName } from '@/lib/utils';
+import { shortAddr, formatMst, circleStateName } from '@/lib/utils';
 
 interface PassbookCardProps {
   address: string;
@@ -70,7 +70,7 @@ export function PassbookCard({
         {/* Contribution */}
         <div className="mb-4">
           <p className="text-xs text-text-muted uppercase tracking-wider mb-0.5">Per Round Deposit</p>
-          <p className="font-mono text-2xl font-black text-text-primary tabular">{formatEth(contribution, 3)}</p>
+          <p className="font-mono text-2xl font-black text-text-primary tabular">{formatMst(contribution, 3)}</p>
         </div>
 
         <div className="w-full h-px bg-border/20 mb-4" />

@@ -25,15 +25,15 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Bhishi.eth — Community Savings on Chain',
-  description: 'Trustless chit-fund circles on Ethereum. No organizer needed. Your Trust Score, on-chain.',
-  keywords: ['bhishi', 'chit fund', 'ethereum', 'defi', 'savings', 'web3'],
+  title: 'Bhishi.mst — Community Savings on Chain',
+  description: 'Trustless chit-fund circles on MST Blockchain. No organizer needed. Your Trust Score, on-chain.',
+  keywords: ['bhishi', 'chit fund', 'mst blockchain', 'defi', 'savings', 'web3'],
   icons: {
     icon: '/bhishi-matka.svg',
   },
   openGraph: {
-    title: 'Bhishi.eth',
-    description: 'Trustless chit-fund circles on Ethereum',
+    title: 'Bhishi.mst',
+    description: 'Trustless chit-fund circles on MST Blockchain',
     type: 'website',
   },
 };

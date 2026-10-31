@@ -10,7 +10,7 @@ import {Circle} from "../src/Circle.sol";
 ///         One wallet intentionally does NOT deposit round 1 to demo slashing.
 ///
 ///         Run with:
-///           forge script script/Seed.s.sol --rpc-url $SEPOLIA_RPC_URL \
+///           forge script script/Seed.s.sol --rpc-url $MST_TESTNET_RPC_URL \
 ///             --private-key $PRIVATE_KEY --broadcast -vvv
 contract SeedScript is Script {
     function run() external {
