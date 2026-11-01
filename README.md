@@ -17,7 +17,7 @@ Traditional chit funds suffer from two fatal vulnerabilities:
 - 🛡️ **Zero Trusted Organizer**: Smart contracts autonomously enforce deadlines, collect funds, conduct pseudo-random draws via `prevrandao`, and distribute winnings.
 - 🔒 **Collateral Escrow & Slashing**: Members lock 1x round contribution upfront as collateral. If a member misses a deadline, their collateral is slashed to fill the pot, and a default is permanently recorded.
 - ⏳ **30% Early-Winner Holdback**: When early winners claim, 30% of their winnings is held in trust until the entire circle finishes, disincentivizing ghosting.
-- 💎 **Soulbound Trust Score NFT (`TrustSBT`)**: Non-transferable ERC-721 token that computes your portable reputation directly on-chain (+10 pts per on-time payment, +50 pts per completed circle, -50 pts per default).
+- 💎 **Soulbound Trust Score NFT (`TrustSBT`)**: It computes your portable reputation directly on-chain (+10 pts per on-time payment, +50 pts per completed circle, -50 pts per default).
 
 ---
 
