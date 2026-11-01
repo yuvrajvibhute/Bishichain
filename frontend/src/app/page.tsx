@@ -96,7 +96,7 @@ export default function LandingPage() {
             </div>
             <div className="p-3 bg-surface border-2 border-border rounded shadow-hard-sm">
               <div className="text-text-muted text-[10px] uppercase">Trust Score</div>
-              <div className="text-xl font-black text-text-primary mt-0.5">ERC-721 SBT</div>
+              <div className="text-xl font-black text-text-primary mt-0.5">Soulbound SBT</div>
               <div className="text-[10px] text-text-secondary mt-0.5">On-chain SVG metadata</div>
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function LandingPage() {
                   Soulbound Trust SBT
                 </h4>
                 <p className="text-xs text-text-secondary leading-relaxed">
-                  Each completed circle stamps a non-transferable ERC-721 NFT in your wallet. Earn +10 pts for on-time payments, -50 pts for defaults.
+                  Each completed circle updates your non-transferable Trust Score badge. Earn +10 pts for on-time payments, -50 pts for defaults.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-border/20 text-[11px] font-mono text-tulsi font-bold">
