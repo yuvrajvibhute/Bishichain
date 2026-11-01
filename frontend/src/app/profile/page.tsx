@@ -77,7 +77,7 @@ export default function ProfilePage() {
             Aapka Trust Score & SBT Card
           </h1>
           <p className="text-sm text-text-secondary mt-1 font-ui max-w-xl">
-            A non-transferable, soulbound ERC-721 token living on MST Blockchain. Your on-time payment track record proves creditworthiness across Web3.
+            Your non-transferable, soulbound Trust Score badge lives on MST Blockchain. Your on-time payment track record proves creditworthiness across Web3.
           </p>
         </div>
 
